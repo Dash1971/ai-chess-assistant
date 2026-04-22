@@ -1,6 +1,6 @@
 ---
 name: openings-coach
-description: Analyze chess games against Aman Hambleton's speedrun databases (Stonewall and French Defense). Triggers when user sends a PGN file or chess game for analysis, asks about Stonewall or French opening strategy, references "our SW PDF" or "French PDF", or requests updates to either living document. Also triggers on questions about wonestall/sterkurstrakur/Aman's speedrun patterns. NOT for general chess questions unrelated to these openings, or for the chess-db move prefix search (that's a separate trigger).
+description: Analyze chess games against Aman Hambleton's speedrun databases (Stonewall and French Defense). Triggers when user sends a PGN file or chess game for analysis, asks about Stonewall or French opening strategy, references "our SW doc/cheat sheet" or "French doc/cheat sheet", or requests updates to either living document. Also triggers on questions about wonestall/sterkurstrakur/Aman's speedrun patterns. NOT for general chess questions unrelated to these openings, or for the chess-db move prefix search (that's a separate trigger).
 ---
 
 # Opening Coach (Stonewall + French)
@@ -16,7 +16,7 @@ When Dash sends a PGN file, detect the opening BEFORE analyzing:
 - White SW: d4 + e3 + f4 + Bd3 structure (any order)
 - Black SW: d5 + e6 + f5 + Bd6 structure (typically vs 1.d4)
 - Reference player: **wonestall** | DB: current local Stonewall corpus in `chess-db/games.pgn`
-- Before Stonewall-specific analysis or PDF work, read `skills/openings-coach/references/stonewall-notes.md`
+- Before Stonewall-specific analysis or cheat-sheet maintenance, read `skills/openings-coach/references/stonewall-notes.md`
 
 **French Defense Detection:**
 - 1.e4 e6 (as Black) — any variation (Winawer, Exchange, Advanced, Tarrasch, sidelines)
@@ -25,7 +25,7 @@ When Dash sends a PGN file, detect the opening BEFORE analyzing:
 
 **If neither:** Still analyze the game, but note that no speedrun reference database applies. Offer general observations only.
 
-**If ambiguous (e.g. French Exchange → Stonewall attempt):** Flag both contexts. The French PDF documents that SW in exchange doesn't scale — mention this.
+**If ambiguous (e.g. French Exchange → Stonewall attempt):** Flag both contexts. The French cheat sheet documents that SW in exchange doesn't scale — mention this.
 
 ---
 
@@ -152,20 +152,20 @@ End with "**Single biggest improvement:**" — one actionable takeaway tied to a
 
 ---
 
-## Mode 2: PDF Maintenance
+## Mode 2: Cheat-Sheet Maintenance
 
-**Stonewall PDF** ("our SW PDF", "stonewall cheatsheet", "update the stonewall"):
+**Stonewall cheat sheet** ("our SW PDF", "our SW doc", "stonewall cheatsheet", "update the stonewall"):
 1. Read `skills/openings-coach/references/stonewall-notes.md`
-2. Read `chess-db/generate_pdf.py` first
-3. Make edits
-4. Regenerate: `python3 chess-db/generate_pdf.py`
-5. Send updated PDF
+2. Update the canonical markdown/doc surface first
+3. Read `chess-db/generate_pdf.py` if a derived PDF export also needs updating
+4. Regenerate PDF only when needed: `python3 chess-db/generate_pdf.py`
+5. Treat the PDF as derived, not canonical
 
-**French PDF** ("French PDF", "French cheatsheet", "update the French"):
-1. Read `chess-db/tag_french.py` AND `chess-db/generate_french_pdf.py` first
-2. Make edits
-3. Regenerate: `python3 chess-db/tag_french.py && python3 chess-db/generate_french_pdf.py`
-4. Send updated PDF
+**French cheat sheet** ("French PDF", "French doc", "French cheatsheet", "update the French"):
+1. Update the canonical markdown/doc surface first
+2. Read `chess-db/tag_french.py` AND `chess-db/generate_french_pdf.py` if a derived PDF export also needs updating
+3. Regenerate PDF only when needed: `python3 chess-db/tag_french.py && python3 chess-db/generate_french_pdf.py`
+4. Treat the PDF as derived, not canonical
 
 ---
 
@@ -187,12 +187,12 @@ When Dash asks about opening patterns/stats:
 | `chess-db/parse_pgn.py` | PGN parser (MANDATORY — never use regex) |
 | `chess-db/games.pgn` | All games (Stonewall + French + Habits) |
 | `chess-db/sources.txt` | Lichess study IDs |
-| `chess-db/generate_pdf.py` | Stonewall PDF generator |
+| `chess-db/generate_pdf.py` | Stonewall PDF export generator |
 | `skills/openings-coach/references/stonewall-notes.md` | Stonewall-local insights, migration state, anti-regression notes |
-| `chess-db/stonewall-cheatsheet.pdf` | Current Stonewall PDF |
+| `chess-db/stonewall-cheatsheet.pdf` | Current Stonewall PDF export |
 | `chess-db/tag_french.py` | French game tagger |
-| `chess-db/generate_french_pdf.py` | French PDF generator |
-| `chess-db/french-cheatsheet.pdf` | Current French PDF |
+| `chess-db/generate_french_pdf.py` | French PDF export generator |
+| `chess-db/french-cheatsheet.pdf` | Current French PDF export |
 | `chess-db/tag_games.py` | General game tagger (if exists) |
 
 ## Critical Rules

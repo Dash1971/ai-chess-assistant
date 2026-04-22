@@ -51,7 +51,7 @@ This matters because the black-side sections now rest on a much thicker sample t
   - the h-file is live
   - both bishops are cutting toward the king
 
-## PDF Anti-Regression Rules
+## Cheat-Sheet / PDF Anti-Regression Rules
 
 ### 1) No hardcoded counts or percentages in living corpus prose
 If a stat can change after a DB refresh, compute it from current data.
@@ -73,7 +73,7 @@ Bad pattern:
 - placing the White-side `...Nf6` / `...e5` timing concern under the Black section without direct Black-side support
 
 ### 3) Prefer local references over MEMORY.md
-For Stonewall PDF updates or Stonewall questions:
+For Stonewall cheat-sheet updates, derived PDF export updates, or Stonewall questions:
 - load this file
 - load the current generator / tagger
 - verify against current corpus

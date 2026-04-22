@@ -5,13 +5,13 @@
 Update the local study database:
 
 ```bash
-python3 scripts/update_db.py
+python3 chess_tools/update_db.py
 ```
 
 Search the full staged database:
 
 ```bash
-python3 scripts/search.py --db data/study-db/games.pgn d4 d5 e3 e6 Bd3
+python3 chess_tools/search.py --db data/study-db/games.pgn d4 d5 e3 e6 Bd3
 ```
 
 ## AI coach game analysis
@@ -29,7 +29,7 @@ Typical prompt:
 Download a chess.com player:
 
 ```bash
-python3 scripts/analyze_player.py <username> tmp/<username> --platform chesscom
+python3 chess_tools/analyze_player.py <username> tmp/<username> --platform chesscom
 ```
 
 Typical prompt:
@@ -38,16 +38,25 @@ Typical prompt:
 
 ## Opening cheat sheets
 
+Canonical GitHub docs:
+
+```text
+docs/stonewall-cheatsheet.md
+docs/french-cheatsheet.md
+```
+
+Optional export-oriented PDF flow:
+
 Stonewall:
 
 ```bash
-python3 scripts/tag_games.py
-python3 scripts/generate_stonewall_pdf.py
+python3 chess_tools/tag_games.py
+python3 chess_tools/generate_pdf.py
 ```
 
 French:
 
 ```bash
-python3 scripts/tag_french.py
-python3 scripts/generate_french_pdf.py
+python3 chess_tools/tag_french.py
+python3 chess_tools/generate_french_pdf.py
 ```

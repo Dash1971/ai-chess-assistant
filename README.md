@@ -34,12 +34,17 @@ The `chess_tools/` layer contains the reusable code behind the workflows, includ
 - tagging helpers
 - diagram helpers
 - PGN comment sanitation helpers
-- PDF/document generators where markdown has not yet fully replaced export-oriented flows
+- taggers and export-oriented generators; the canonical cheat sheets now live in `docs/`
 
 ### Docs
 The `docs/` tree is the canonical documentation layer.
 
 The long-term direction is **markdown-first documentation** that can be read and reviewed directly in GitHub.
+
+That includes the opening cheat sheets:
+
+- `docs/stonewall-cheatsheet.md`
+- `docs/french-cheatsheet.md`
 
 ### Minimal example data
 The `examples/` tree holds a small public-safe sample layer only:
@@ -104,6 +109,8 @@ examples/
 
 ### `docs/`
 Browser-readable canonical docs.
+
+This includes the canonical markdown cheat sheets for Stonewall and French.
 
 ### `skills/`
 Public chess skills.

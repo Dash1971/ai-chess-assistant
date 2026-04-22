@@ -1,6 +1,6 @@
 ---
 name: chess-concepts
-description: Create and maintain living-document PDFs exploring chess concepts (e.g. opposite-side castling, doubling rooks, pawn storms, bishop pair). Each concept is illustrated with chess position diagrams and explored within the context of the current opening systems in use (especially Stonewall and French Defense), using games from Aman Hambleton's speedruns (wonestall/sterkurstrakur), Ju Wenjun, self-account examples supplied at runtime, or scouted opponents. Triggers when user asks to "make a PDF on [concept]", "document [concept]", "chess concept: [topic]", or references updating an existing concept document. NOT for game analysis (use stonewall-coach) or opponent scouting (use chess-opponent-scout).
+description: Create and maintain living documents exploring chess concepts (e.g. opposite-side castling, doubling rooks, pawn storms, bishop pair). Each concept is illustrated with chess position diagrams and explored within the context of the current opening systems in use (especially Stonewall and French Defense), using games from Aman Hambleton's speedruns (wonestall/sterkurstrakur), Ju Wenjun, self-account examples supplied at runtime, or scouted opponents. Triggers when user asks to "make a PDF on [concept]", "document [concept]", "chess concept: [topic]", or references updating an existing concept document. NOT for game analysis (use stonewall-coach) or opponent scouting (use chess-opponent-scout).
 ---
 
 # Chess Concepts — Living Documents
@@ -44,7 +44,7 @@ Each principle gets:
 How the concept applies within the current systems in use:
 - **Stonewall context** — reference wonestall games (105W + 45B in `chess-db/games.pgn`)
 - **French context** — reference sterkurstrakur games (60 in `chess-db/games.pgn`)
-- **Cross-reference** with the Stonewall and French cheat sheet PDFs where relevant
+- **Cross-reference** with the Stonewall and French cheat sheets where relevant
 
 ### 4. Real Game Examples
 Find illustrative games from:
@@ -75,7 +75,7 @@ All diagrams use `chess-db/diagram_helpers.py`:
 - Arrows: `chess.svg.Arrow(from_sq, to_sq, color='#ff0000cc')`
 
 ### PDF Generation
-- HTML + WeasyPrint (same as Stonewall/French PDFs)
+- HTML + WeasyPrint (same export stack used for optional Stonewall/French PDFs)
 - A4 page size, 20mm margins
 - Color scheme: pick a distinct accent color per concept (avoid reusing SW blue or French green)
   - OSC: dark red `#8b0000`
@@ -124,8 +124,8 @@ When Dash says "update the OSC document" or similar:
 | `chess-db/concepts/` | All concept PDFs and their generators |
 | `chess-db/games.pgn` | Aman's speedrun games (primary source) |
 | `chess-db/parse_pgn.py` | PGN parser (MANDATORY) |
-| `chess-db/stonewall-cheatsheet.pdf` | Cross-reference for SW concepts |
-| `chess-db/french-cheatsheet.pdf` | Cross-reference for French concepts |
+| `chess-db/stonewall-cheatsheet.pdf` | Optional SW PDF export / cross-reference |
+| `chess-db/french-cheatsheet.pdf` | Optional French PDF export / cross-reference |
 
 ## Critical Rules
 
