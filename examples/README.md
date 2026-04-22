@@ -7,4 +7,4 @@ It contains:
 - a sample source list
 - example queries
 
-The full operating corpus and generated outputs live in the private companion repo.
+Use these files to understand the workflow shape, then swap in your own data.

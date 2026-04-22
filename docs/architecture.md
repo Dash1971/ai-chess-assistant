@@ -33,10 +33,13 @@ The long-term direction is markdown-first documentation that can be reviewed dir
 
 The `examples/` directory is intentionally minimal.
 
-It provides a small sample layer for understanding the workflows without bundling the full operating corpus.
+It provides a small sample layer for understanding the workflows before you point the system at your own corpus.
 
-## Private companion relationship
+## How the layers fit together
 
-This public repo is the generic, publishable layer.
-
-The private companion repo `chess-data-private` holds the full working corpus, full source lists, and private generated outputs used in day-to-day operation.
+In practice, the usual flow is:
+1. keep skills in `skills/`
+2. keep reusable Python code in `chess_tools/`
+3. document the workflows in `docs/`
+4. test the structure with `examples/`
+5. replace the sample data with your own local corpus and source lists

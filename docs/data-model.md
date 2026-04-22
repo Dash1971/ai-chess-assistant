@@ -1,21 +1,21 @@
 # Data Model
 
-## Public repo
+## Repository contents
 
-This public repo carries:
+This repo carries:
 - generic skills
 - generic tooling
 - markdown docs
 - minimal example data
 
-## Private companion repo
+## Runtime data model
 
-The private companion repo `chess-data-private` carries:
-- the full working corpus
-- full source lists
-- generated PDFs and other real working outputs
+For actual use, you are expected to supply your own:
+- working corpus
+- source lists
+- generated reports or exports
 
 ## Document model
 
 Markdown docs in the repo are the canonical document layer.
-PDFs are secondary/private exports.
+PDFs are secondary exports.
