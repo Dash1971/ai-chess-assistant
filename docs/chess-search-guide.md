@@ -77,7 +77,7 @@ File:
 - `chess-db/query_backup.py`
 
 Responsibilities:
-- reduce discretion for weaker backup models (e.g. Kimi)
+- provide a more rigid fallback query path
 - use a fixed ladder: parse -> compile -> run -> forced fuzzy fallback -> summarize
 - normalize some fuzzy attack-shape wording before search
 

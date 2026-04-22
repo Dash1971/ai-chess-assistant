@@ -1,6 +1,8 @@
 # OpenClaw AI Chess Coach
 
-OpenClaw AI Chess Coach is a practical template for using **OpenClaw** as a chess study and training assistant.
+OpenClaw AI Chess Coach is a practical template for building a **local-first chess assistant** with **OpenClaw**.
+
+OpenClaw is an AI assistant framework that can run skills, tools, and repeatable workflows on your own machine. In this repo, it is used as the orchestration layer around a chess corpus, study-sync scripts, and chess-specific analysis tools.
 
 It shows how to combine:
 - reusable OpenClaw skills
@@ -9,7 +11,19 @@ It shows how to combine:
 - study-source sync scripts
 - example workflows for coaching, scouting, and opening prep
 
-If you want to build your own agent-backed chess coach, this repo is meant to give you a clean starting point.
+If you want to build your own chess coach that can search your games, analyze patterns, generate study material, and answer chess questions against a local database, this repo is meant to give you a clean starting point.
+
+---
+
+## Start here
+
+If you are new to OpenClaw:
+
+1. install OpenClaw: <https://docs.openclaw.ai>
+2. install the Python dependencies: `pip install -r requirements.txt`
+3. read `docs/index.md`
+4. inspect `examples/`
+5. adapt the skills and tools to your own corpus and opening repertoire
 
 ---
 
@@ -43,6 +57,7 @@ This repo is for people who want to:
 
 ### 1. Read the docs
 Start with:
+- `docs/index.md`
 - `docs/setup.md`
 - `docs/workflows.md`
 - `docs/search-system.md`
@@ -98,6 +113,8 @@ Thin repo-level helpers and notes.
 This is not a polished chess product or a hosted service.
 
 It is a **working public toolkit** for people who want to replicate an OpenClaw-based chess coach locally, study how the pieces fit together, and adapt the approach to their own opening systems and game database.
+
+It is most useful if you are comfortable editing scripts, maintaining your own PGN corpus, and shaping the workflows around your own study goals.
 
 ---
 

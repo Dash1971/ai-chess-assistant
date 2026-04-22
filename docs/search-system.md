@@ -1,9 +1,6 @@
 # Chess DB Search System
 
-Status: active work-in-progress, but usable now.
-
-This file is the durable handoff doc for the new chess search stack.
-It is meant for future sessions, resets, and other models.
+This document explains the chess query stack used in the repo.
 
 ## Purpose
 
@@ -12,7 +9,7 @@ The new system supports:
 - exact structured motif/position search
 - fuzzy/similarity-style search with optional weighted motifs
 - natural-language compilation into structured queries
-- assistant-facing human-readable answers
+- human-readable answers
 - grouped motif-only results so one sustained motif stretch does not spam adjacent plies as separate results
 
 Core rule:
@@ -38,22 +35,22 @@ Core rule:
 - `chess-db/query_cli.py`
   - raw CLI for exact/fuzzy JSON execution
 
-### Natural-language and assistant layers
+### Natural-language and answer layers
 - `chess-db/query_nl.py`
   - rule-first NL -> exact/fuzzy query compiler
   - extracts players, color, study hints, SAN moves, square facts, motif phrases
   - returns `needs_clarification` if the prompt is too vague
 
 - `chess-db/query_answer.py`
-  - assistant-facing wrapper
+  - human-facing wrapper
   - takes a normal chess question
   - runs the NL/compiler/search stack
   - returns compact human-readable results instead of raw JSON
 
 - `chess-db/query_backup.py`
-  - procedural backup wrapper for weaker/backup models
+  - procedural fallback wrapper
   - forces a fixed ladder: normalize fuzzy attack wording -> parse/compile/run -> attack-shape fallback -> forced fuzzy fallback -> summarize
-  - preferred first entry point for Kimi-style backup operation
+  - useful when you want a more rigid query path
 
 ### Docs/examples
 - `chess-db/query_examples.md`
@@ -66,7 +63,7 @@ Core rule:
 
 ---
 
-## Current capabilities
+## Capabilities
 
 ### Exact structured search
 Can search by:
@@ -154,20 +151,19 @@ It is **not yet good** at:
 Important behavior:
 - if no player is known, `self/opponent` semantics degrade to `any`
 - vague prompts should return clarification, not fabricated precision
-- backup models should prefer `query_backup.py` over ad-hoc orchestration
 - backup wrapper now canonicalizes fuzzy attack wording like `rook uplift`, `queen+rook battery`, `heavy-piece battery`, and `leading to checkmate` before search
 
 ---
 
 ## Recommended usage
 
-### Best chat-facing entry point
+### Best natural-language entry point
 Use:
 ```bash
 python3 chess-db/query_answer.py "<natural language chess question>"
 ```
 
-### Best backup-model entry point
+### Most rigid fallback entry point
 Use:
 ```bash
 python3 chess-db/query_backup.py "<natural language chess question>"
@@ -182,9 +178,6 @@ If that normalized text contains the full trio `rook lift + queen-rook battery +
 1. rook-lift predicate
 2. queen-behind-rook battery predicate within 12 plies
 3. mating move regex (`.*#`) within 12 plies
-
-See also:
-- `chess-db/KIMI_BACKUP_WORKFLOW.md`
 
 ### For debugging translation
 Use:
@@ -238,11 +231,3 @@ Most valuable next additions:
 - narrower continuation semantics for composed templates when the prompt is still broad (for example, stronger definitions of `attacking continuation` and `heavy-piece follow-up`)
 
 ---
-
-## Recovery note for future sessions
-
-If a session resets mid-task:
-1. read this file first
-2. use `query_answer.py` to test whether the stack still runs
-3. use `query_nl.py --compile-only` on the failing prompt to see whether the problem is parsing or retrieval
-4. if results look noisy, inspect `query_engine.py` predicates before changing the NL layer
