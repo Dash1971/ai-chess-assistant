@@ -14,10 +14,10 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from parse_pgn import load_games
+from opening_tag_pipeline import count_tags, tag_game_collection, write_tag_output
 from opening_tag_utils import (
     first_n_moves_set,
     get_annotations,
-    get_raw_text,
     has_move_any,
     has_move_early,
     move_number_of,
@@ -360,19 +360,16 @@ def run(pgn_path=PGN, output_json=OUTPUT_JSON, quiet=False):
     _, french_games = load_games(pgn_path, 'sterkurstrakur')
 
     # Tag all games
-    for g in french_games:
-        raw = get_raw_text(pgn_path, g['url'])
-        g['tags'] = tag_french_game(g, raw)
-        g['variation'] = classify_variation(g, raw)
+    def _postprocess(game, raw):
+        game['variation'] = classify_variation(game, raw)
+
+    tag_game_collection(french_games, pgn_path, tag_french_game, postprocess=_postprocess)
 
     # Output stats
     if not quiet:
         print(f"Tagged {len(french_games)} French games")
 
-    tags = {}
-    for g in french_games:
-        for t in g['tags']:
-            tags[t] = tags.get(t, 0) + 1
+    tags = count_tags(french_games)
     if not quiet:
         print("\nAll tags:")
         for t, c in sorted(tags.items(), key=lambda x: -x[1]):
@@ -388,10 +385,7 @@ def run(pgn_path=PGN, output_json=OUTPUT_JSON, quiet=False):
 
     # Write JSON
     data = {'games': french_games}
-    with open(output_json, 'w') as f:
-        json.dump(data, f, default=str)
-    if not quiet:
-        print(f"\nWrote {output_json}")
+    write_tag_output(data, output_json, quiet=quiet)
 
 
 def main(argv=None):

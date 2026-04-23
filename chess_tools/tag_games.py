@@ -14,10 +14,10 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from parse_pgn import load_games
+from opening_tag_pipeline import print_tag_summary, tag_game_collection, write_tag_output
 from opening_tag_utils import (
     first_n_moves_set,
     get_annotations,
-    get_raw_text,
     has_move_any,
     has_move_early,
     move_number_of,
@@ -491,52 +491,26 @@ def tag_black_game(game, raw_text):
 def run(pgn_path=PGN, output_json=OUTPUT_JSON, quiet=False):
     white_games, black_games = load_games(pgn_path, 'wonestall')
 
-    # Read raw texts once
-    with open(pgn_path) as f:
-        content = f.read()
-
     # Tag white games
-    for g in white_games:
-        raw = get_raw_text(pgn_path, g['url'])
-        g['tags'] = tag_white_game(g, raw)
+    tag_game_collection(white_games, pgn_path, tag_white_game)
 
     # Tag black games
-    for g in black_games:
-        raw = get_raw_text(pgn_path, g['url'])
-        g['tags'] = tag_black_game(g, raw)
+    tag_game_collection(black_games, pgn_path, tag_black_game)
 
     # Output stats
     if not quiet:
         print(f"Tagged {len(white_games)} white + {len(black_games)} black games")
         print(f"(Opening cutoff: {MOVE_CUTOFF} moves)")
 
-    w_tags = {}
-    for g in white_games:
-        for t in g['tags']:
-            w_tags[t] = w_tags.get(t, 0) + 1
-    if not quiet:
-        print("\nWhite tags:")
-        for t, c in sorted(w_tags.items(), key=lambda x: -x[1]):
-            print(f"  {t}: {c}")
-
-    b_tags = {}
-    for g in black_games:
-        for t in g['tags']:
-            b_tags[t] = b_tags.get(t, 0) + 1
-    if not quiet:
-        print("\nBlack tags:")
-        for t, c in sorted(b_tags.items(), key=lambda x: -x[1]):
-            print(f"  {t}: {c}")
+    print_tag_summary('White tags', white_games, quiet=quiet)
+    print_tag_summary('Black tags', black_games, quiet=quiet)
 
     # Write JSON
     data = {
         'white_games': white_games,
         'black_games': black_games,
     }
-    with open(output_json, 'w') as f:
-        json.dump(data, f, default=str)
-    if not quiet:
-        print(f"\nWrote {output_json}")
+    write_tag_output(data, output_json, quiet=quiet)
 
 
 def main(argv=None):

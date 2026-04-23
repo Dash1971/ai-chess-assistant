@@ -14,16 +14,15 @@ import json
 import os
 import chess
 import chess.svg
-import weasyprint
 from datetime import datetime
 from diagram_helpers import diagram_html, DIAGRAM_CSS
+from opening_guide_pipeline import load_guide_data, write_guide_outputs
 from opening_guide_utils import build_game_link, game_list_html as shared_game_list_html, theme_box as shared_theme_box
 
 INPUT_JSON = os.environ.get('OPENING_GUIDE_INPUT', '/tmp/sw_data.json')
 HTML_DEBUG = os.environ.get('OPENING_GUIDE_HTML', '/tmp/stonewall_cheatsheet.html')
 
-with open(INPUT_JSON) as f:
-    data = json.load(f)
+data = load_guide_data(INPUT_JSON)
 
 white_games = data['white_games']
 black_games = data['black_games']
@@ -1076,12 +1075,6 @@ html += f'''
 </html>'''
 
 # Write HTML for debugging
-with open(HTML_DEBUG, 'w') as f:
-    f.write(html)
-
-# Generate PDF
 from pathlib import Path
 output_path = Path(os.environ.get('OPENING_GUIDE_OUTPUT', str(Path(__file__).resolve().parent / 'stonewall-cheatsheet.pdf')))
-weasyprint.HTML(string=html).write_pdf(str(output_path))
-print(f'PDF generated: {output_path}')
-print(f'  {n_white} white + {n_black} black games')
+write_guide_outputs(html, HTML_DEBUG, output_path, f'  {n_white} white + {n_black} black games')
