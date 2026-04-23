@@ -14,6 +14,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from parse_pgn import load_games
+from french_opening_data import DEFAULT_PGN, DEFAULT_TAG_OUTPUT, MOVE_CUTOFF
 from opening_tag_pipeline import count_tags, tag_game_collection, write_tag_output
 from opening_tag_utils import (
     first_n_moves_set,
@@ -23,9 +24,8 @@ from opening_tag_utils import (
     move_number_of,
 )
 
-PGN = os.environ.get('OPENING_PGN_PATH', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'games.pgn'))
-OUTPUT_JSON = os.environ.get('OPENING_TAG_OUTPUT', '/tmp/french_data.json')
-MOVE_CUTOFF = 15
+PGN = os.environ.get('OPENING_PGN_PATH', str(DEFAULT_PGN))
+OUTPUT_JSON = os.environ.get('OPENING_TAG_OUTPUT', str(DEFAULT_TAG_OUTPUT))
 
 
 def classify_variation(game, raw_text):

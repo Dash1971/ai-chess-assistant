@@ -11,11 +11,20 @@ import chess
 import chess.svg
 from datetime import datetime
 from diagram_helpers import diagram_html, DIAGRAM_CSS
+from french_opening_data import (
+    DEFAULT_GUIDE_HTML,
+    DEFAULT_GUIDE_PDF,
+    DEFAULT_TAG_OUTPUT,
+    DISRUPTION_THEME_GROUPS,
+    EXCHANGE_THEME_GROUPS,
+    STRATEGIC_THEME_GROUPS,
+    VARIATION_THEME_GROUPS,
+)
 from opening_guide_pipeline import load_guide_data, write_guide_outputs
 from opening_guide_utils import build_game_link, game_list_html as shared_game_list_html, theme_box as shared_theme_box
 
-INPUT_JSON = os.environ.get('OPENING_GUIDE_INPUT', '/tmp/french_data.json')
-HTML_DEBUG = os.environ.get('OPENING_GUIDE_HTML', '/tmp/french_cheatsheet.html')
+INPUT_JSON = os.environ.get('OPENING_GUIDE_INPUT', str(DEFAULT_TAG_OUTPUT))
+HTML_DEBUG = os.environ.get('OPENING_GUIDE_HTML', str(DEFAULT_GUIDE_HTML))
 
 data = load_guide_data(INPUT_JSON)
 
@@ -837,73 +846,28 @@ Based on Aman Hambleton's (sterkurstrakur) French Defense Speedrun &bull; Genera
 '''
 
 # Variation themes
-var_themes = [
-    ('var_exchange', 'Exchange Variation', 'All exchange games (3.exd5 exd5).'),
-    ('var_advanced', 'Advanced Variation', 'All advanced games (3.e5).'),
-    ('var_winawer_advanced', 'Winawer Advanced', 'Winawer into advanced pawn structure.'),
-    ('var_winawer_exchange', 'Winawer Exchange', 'Winawer into exchange pawn structure.'),
-    ('var_winawer_ne2_gambit', 'Winawer Ne2 Gambit', 'Unusual 4.Ne2 in the Winawer.'),
-    ('var_winawer_transposition', 'Winawer Transposition', 'Winawer arising from non-standard move orders.'),
-    ('var_tarrasch', 'Tarrasch', '3.Nd2 variation.'),
-    ('var_kia', 'KIA / King\'s Indian Attack', 'g3 setup from White.'),
-    ('var_other', 'Other Sidelines', 'Non-standard White responses (2.Nf3, 2.f4, 2.Nc3, 2.c4, etc.).'),
-]
-
-for tag, title, desc in var_themes:
+for tag, title, desc in VARIATION_THEME_GROUPS:
     matching = tagged(tag)
     if matching:
         html += theme_box(title, desc, matching)
 
 html += '<h3>Exchange Sub-Plans</h3>'
 
-exchange_themes = [
-    ('exchange_aggressive', 'Aggressive Exchange (O-O-O)', 'The attacking setup: Bd6 + LSB + Qd7 + O-O-O + pawn storm.'),
-    ('exchange_conservative', 'Conservative Exchange (O-O)', 'The solid setup: Bd6 + c6 + Nf6 + O-O. Safe fallback.'),
-    ('cons_re8_file', 'Conservative: Re8 Open File', 'Re8 seizing the open e-file — the primary active idea.'),
-    ('cons_qc7_battery', 'Conservative: Qc7 Battery', 'Qc7 creating a battery with Bd6 toward h2.'),
-    ('cons_qs_expansion', 'Conservative: QS Pawn Expansion', 'b5/a5 push — queenside space and targets.'),
-    ('sw_reference', 'Stonewall References', 'Games where the SW was discussed, attempted, or avoided.'),
-    ('opp_qe2_check', 'vs Qe2+ Disruption', 'Early queen check forces plan change.'),
-]
-
-for tag, title, desc in exchange_themes:
+for tag, title, desc in EXCHANGE_THEME_GROUPS:
     matching = tagged(tag)
     if matching:
         html += theme_box(title, desc, matching)
 
 html += '<h3>Strategic Themes</h3>'
 
-strategic_themes = [
-    ('lsb_ba6_trade', 'LSB Trade via Ba6', 'b6 + Ba6 to trade the bad French bishop.'),
-    ('lsb_developed', 'LSB Actively Developed', 'LSB to Bg4, Bf5, or Be6.'),
-    ('knight_vs_bishop_endgame', 'Knight vs Bad Bishop Endgame', 'Games steering toward favorable N vs B endings.'),
-    ('bishop_pair_advantage', 'Bishop Pair Advantage', 'Games where the bishop pair was a key factor.'),
-    ('d4_pressure', 'Qb6 + Nc6 on d4', 'Combined pressure on the d4 pawn chain.'),
-    ('b2_grab', 'b2 Pawn Grabs', 'Opponent blunders b2 after moving DSB.'),
-    ('pawn_storm', 'Kingside Pawn Storm (O-O-O)', 'g5/h5 pawn storm after queenside castling.'),
-    ('f6_control', 'f6 — E5/G5 Control', 'f6 controls key squares and prepares expansion.'),
-    ('h6_snork', 'h6 Snork (Luft)', 'The classic safety move and Building Habits favorite.'),
-    ('c5_break', 'c5 Pawn Break', 'Key lever in the advanced/Tarrasch.'),
-    ('quick_win', 'Quick Wins (≤20 moves)', 'Games that ended fast.'),
-]
-
-for tag, title, desc in strategic_themes:
+for tag, title, desc in STRATEGIC_THEME_GROUPS:
     matching = tagged(tag)
     if matching:
         html += theme_box(title, desc, matching)
 
 html += '<h3>Opponent Disruptions</h3>'
 
-disruption_themes = [
-    ('opp_nc3', 'Opponent Nc3', 'Knight attacks d5 — the most common disruption.'),
-    ('opp_bg5_pin', 'Opponent Bg5 Pin', 'Bishop pins our knight. Answered with f6.'),
-    ('opp_queen_check', 'Opponent Queen Check (Qe2+/Qh5+)', 'Early queen check disrupts plans.'),
-    ('opp_c4', 'Opponent c4', 'Attacks our d5 pawn — kills the SW.'),
-    ('opp_re1_check', 'Opponent Re1+', 'Rook check on the open e-file.'),
-    ('opp_h3_tempo', 'Opponent h3 (Tempo Waste)', 'Wasted tempo — may enable the Stonewall.'),
-]
-
-for tag, title, desc in disruption_themes:
+for tag, title, desc in DISRUPTION_THEME_GROUPS:
     matching = tagged(tag)
     if matching:
         html += theme_box(title, desc, matching)
@@ -922,5 +886,5 @@ html += f'''
 
 # Write HTML for debugging
 from pathlib import Path
-output_path = Path(os.environ.get('OPENING_GUIDE_OUTPUT', str(Path(__file__).resolve().parent / 'french-cheatsheet.pdf')))
+output_path = Path(os.environ.get('OPENING_GUIDE_OUTPUT', str(DEFAULT_GUIDE_PDF)))
 write_guide_outputs(html, HTML_DEBUG, output_path, f'  {n_games} games')
