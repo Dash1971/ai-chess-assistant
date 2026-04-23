@@ -12,6 +12,22 @@ It is designed to support workflows such as:
 
 ---
 
+## What is OpenClaw?
+
+[OpenClaw](https://github.com/openclaw/openclaw) is the agent runtime this project is built around.
+
+If you are coming to this repo fresh, the basic idea is:
+- OpenClaw provides the agent, tool, session, and automation framework
+- this repo provides a chess-specific layer on top of that framework
+- the chess layer adds study-sync, search, scouting, and analysis workflows
+
+Useful links:
+- docs: <https://docs.openclaw.ai>
+- source: <https://github.com/openclaw/openclaw>
+- community: <https://discord.com/invite/clawd>
+
+---
+
 ## How the source-material pipeline works
 
 A typical workflow looks like this:

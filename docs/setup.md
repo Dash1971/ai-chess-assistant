@@ -2,6 +2,11 @@
 
 This repo is the public, generic OpenClaw chess-coach layer.
 
+If you are new to OpenClaw itself, start here:
+- docs: <https://docs.openclaw.ai>
+- source: <https://github.com/openclaw/openclaw>
+- community: <https://discord.com/invite/clawd>
+
 ## What you need
 - Python 3
 - OpenClaw workspace capable of running skill scripts
