@@ -26,7 +26,16 @@ The older opening-specific scripts still work, but they are no longer the only i
 Internally, the repo now also has shared helper modules behind those opening-specific implementations:
 
 - `opening_tag_utils.py` — shared tagging helpers such as raw-text extraction, early-move tests, and move-number lookup
+- `opening_tag_pipeline.py` — shared tagging execution flow
 - `opening_guide_utils.py` — shared guide-render helpers such as game-link rendering and themed game-list sections
+- `opening_guide_pipeline.py` — shared guide-output flow
+
+Opening-specific chess knowledge is now being pushed into dedicated modules rather than left in the top-level scripts:
+
+- `stonewall_opening_data.py`
+- `french_opening_data.py`
+- `stonewall_rules.py`
+- `french_rules.py`
 
 Example usage:
 
