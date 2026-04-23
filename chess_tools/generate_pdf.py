@@ -17,6 +17,7 @@ import chess.svg
 import weasyprint
 from datetime import datetime
 from diagram_helpers import diagram_html, DIAGRAM_CSS
+from opening_guide_utils import build_game_link, game_list_html as shared_game_list_html, theme_box as shared_theme_box
 
 INPUT_JSON = os.environ.get('OPENING_GUIDE_INPUT', '/tmp/sw_data.json')
 HTML_DEBUG = os.environ.get('OPENING_GUIDE_HTML', '/tmp/stonewall_cheatsheet.html')
@@ -30,38 +31,17 @@ black_games = data['black_games']
 
 def game_link(g, is_white=True):
     """Generate a clickable game link."""
-    opp = g['black'] if is_white else g['white']
-    url = g['url']
-    ch = g.get('chapter', '')
-    theme_hint = ''
-    if ch:
-        ch = ch.strip()
-        if ch.startswith('(') and ')' in ch:
-            theme_hint = ch[1:ch.index(')')]
-            theme_hint = f' <span class="theme-hint">({theme_hint})</span>'
-    if url:
-        return f'<a href="{url}">{opp}</a>{theme_hint}'
-    return f'{opp}{theme_hint}'
+    return build_game_link(g, opponent_field='black' if is_white else 'white')
 
 
 def game_list_html(games, is_white=True, columns=2):
     """Generate a UL game list."""
-    if not games:
-        return '<p class="empty">No games found.</p>'
-    rows = ''.join(f'<li>{game_link(g, is_white)}</li>' for g in games)
-    col_class = f'columns: {columns};' if columns > 1 else ''
-    return f'<ul class="game-list" style="{col_class}">{rows}</ul>'
+    return shared_game_list_html(games, lambda g: game_link(g, is_white), columns=columns)
 
 
 def theme_box(title, description, games, is_white=True, columns=2):
     """Generate a themed game section."""
-    if not games:
-        return ''
-    return f'''<div class="theme-group">
-    <h4>{title} <span class="count">({len(games)} games)</span></h4>
-    <p class="theme-desc">{description}</p>
-    {game_list_html(games, is_white, columns)}
-    </div>'''
+    return shared_theme_box(title, description, games, lambda g: game_link(g, is_white), columns=columns)
 
 
 def tagged(games, tag):

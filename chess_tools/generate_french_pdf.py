@@ -12,6 +12,7 @@ import chess.svg
 import weasyprint
 from datetime import datetime
 from diagram_helpers import diagram_html, DIAGRAM_CSS
+from opening_guide_utils import build_game_link, game_list_html as shared_game_list_html, theme_box as shared_theme_box
 
 INPUT_JSON = os.environ.get('OPENING_GUIDE_INPUT', '/tmp/french_data.json')
 HTML_DEBUG = os.environ.get('OPENING_GUIDE_HTML', '/tmp/french_cheatsheet.html')
@@ -26,39 +27,17 @@ today = datetime.now().strftime("%B %d, %Y")
 
 def game_link(g):
     """Generate a clickable game link."""
-    opp = g['white']  # opponent is always white
-    url = g['url']
-    ch = g.get('chapter', '')
-    theme_hint = ''
-    if ch:
-        ch = ch.strip()
-        if ch.startswith('(') and ')' in ch:
-            theme_hint = ch[1:ch.index(')')]
-            theme_hint = f' <span class="theme-hint">({theme_hint})</span>'
-    result_icon = '✓' if g['result'] == '0-1' else ('½' if g['result'] == '1/2-1/2' else '✗')
-    if url:
-        return f'<a href="{url}">{opp}</a> {result_icon}{theme_hint}'
-    return f'{opp} {result_icon}{theme_hint}'
+    return build_game_link(g, opponent_field='white', include_result_icon=True)
 
 
 def game_list_html(game_list, columns=2):
     """Generate a UL game list."""
-    if not game_list:
-        return '<p class="empty">No games found.</p>'
-    rows = ''.join(f'<li>{game_link(g)}</li>' for g in game_list)
-    col_class = f'columns: {columns};' if columns > 1 else ''
-    return f'<ul class="game-list" style="{col_class}">{rows}</ul>'
+    return shared_game_list_html(game_list, game_link, columns=columns)
 
 
 def theme_box(title, description, game_list, columns=2):
     """Generate a themed game section."""
-    if not game_list:
-        return ''
-    return f'''<div class="theme-group">
-    <h4>{title} <span class="count">({len(game_list)} games)</span></h4>
-    <p class="theme-desc">{description}</p>
-    {game_list_html(game_list, columns)}
-    </div>'''
+    return shared_theme_box(title, description, game_list, game_link, columns=columns)
 
 
 def tagged(tag):

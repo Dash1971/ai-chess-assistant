@@ -23,6 +23,11 @@ Current configured openings:
 
 The older opening-specific scripts still work, but they are no longer the only interface.
 
+Internally, the repo now also has shared helper modules behind those opening-specific implementations:
+
+- `opening_tag_utils.py` — shared tagging helpers such as raw-text extraction, early-move tests, and move-number lookup
+- `opening_guide_utils.py` — shared guide-render helpers such as game-link rendering and themed game-list sections
+
 Example usage:
 
 ```bash

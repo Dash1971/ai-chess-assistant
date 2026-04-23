@@ -8,66 +8,24 @@ to avoid false positives from random middlegame/endgame moves.
 """
 
 import argparse
-import re
 import json
 import sys
 import os
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from parse_pgn import load_games
+from opening_tag_utils import (
+    first_n_moves_set,
+    get_annotations,
+    get_raw_text,
+    has_move_any,
+    has_move_early,
+    move_number_of,
+)
 
 PGN = os.environ.get('OPENING_PGN_PATH', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'games.pgn'))
 OUTPUT_JSON = os.environ.get('OPENING_TAG_OUTPUT', '/tmp/french_data.json')
 MOVE_CUTOFF = 15
-
-
-def get_raw_text(pgn_path, chapter_url):
-    """Get full raw text for a game by chapter URL."""
-    with open(pgn_path) as f:
-        content = f.read()
-    games = re.split(r'\n\n(?=\[Event)', content)
-    for g in games:
-        if chapter_url and chapter_url in g:
-            return g
-    return ''
-
-
-def get_annotations(raw_text):
-    """Extract all annotation comments from raw game text."""
-    return ' '.join(re.findall(r'\{([^}]*)\}', raw_text))
-
-
-def has_move_early(moves, pattern, max_move=MOVE_CUTOFF):
-    """Check if a move pattern appears in the first N moves."""
-    for num, move in moves:
-        if num > max_move:
-            break
-        if re.match(pattern, move):
-            return True
-    return False
-
-
-def has_move_any(moves, pattern):
-    """Check if a move appears anywhere in the game."""
-    for num, move in moves:
-        if re.match(pattern, move):
-            return True
-    return False
-
-
-def move_number_of(moves, pattern, max_move=999):
-    """Return the move number of first occurrence of pattern, or 0."""
-    for num, move in moves:
-        if num > max_move:
-            break
-        if re.match(pattern, move):
-            return num
-    return 0
-
-
-def first_n_moves_set(moves, n=10):
-    """Return set of move strings from the first N moves."""
-    return set(m for num, m in moves if num <= n)
 
 
 def classify_variation(game, raw_text):
