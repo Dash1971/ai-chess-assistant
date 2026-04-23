@@ -42,6 +42,20 @@ Typical prompt:
 
 > Build a scouting report for this opponent and summarize the biggest exploitable opening patterns.
 
+## Generic opening-guide pipeline
+
+Tag and generate an opening guide through the generic interface:
+
+```bash
+python3 chess_tools/tag_opening.py stonewall --db <games.pgn> --output /tmp/stonewall.json
+python3 chess_tools/generate_opening_guide.py stonewall --input /tmp/stonewall.json --output stonewall-cheatsheet.pdf
+```
+
+```bash
+python3 chess_tools/tag_opening.py french --db <games.pgn> --output /tmp/french.json
+python3 chess_tools/generate_opening_guide.py french --input /tmp/french.json --output french-cheatsheet.pdf
+```
+
 ## Speedrun-study pipeline
 
 Typical sequence:

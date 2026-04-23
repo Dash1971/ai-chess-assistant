@@ -7,6 +7,7 @@ IMPORTANT: Thematic tags are based on the OPENING PHASE (first 15 moves)
 to avoid false positives from random middlegame/endgame moves.
 """
 
+import argparse
 import re
 import json
 import sys
@@ -15,7 +16,8 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from parse_pgn import load_games
 
-PGN = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'games.pgn')
+PGN = os.environ.get('OPENING_PGN_PATH', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'games.pgn'))
+OUTPUT_JSON = os.environ.get('OPENING_TAG_OUTPUT', '/tmp/french_data.json')
 MOVE_CUTOFF = 15
 
 
@@ -396,38 +398,51 @@ def tag_french_game(game, raw_text):
     return list(tags)
 
 
-def main():
-    _, french_games = load_games(PGN, 'sterkurstrakur')
+def run(pgn_path=PGN, output_json=OUTPUT_JSON, quiet=False):
+    _, french_games = load_games(pgn_path, 'sterkurstrakur')
 
     # Tag all games
     for g in french_games:
-        raw = get_raw_text(PGN, g['url'])
+        raw = get_raw_text(pgn_path, g['url'])
         g['tags'] = tag_french_game(g, raw)
         g['variation'] = classify_variation(g, raw)
 
     # Output stats
-    print(f"Tagged {len(french_games)} French games")
+    if not quiet:
+        print(f"Tagged {len(french_games)} French games")
 
     tags = {}
     for g in french_games:
         for t in g['tags']:
             tags[t] = tags.get(t, 0) + 1
-    print("\nAll tags:")
-    for t, c in sorted(tags.items(), key=lambda x: -x[1]):
-        print(f"  {t}: {c}")
+    if not quiet:
+        print("\nAll tags:")
+        for t, c in sorted(tags.items(), key=lambda x: -x[1]):
+            print(f"  {t}: {c}")
 
     # Variation breakdown
     from collections import Counter
     vars_count = Counter(g['variation'] for g in french_games)
-    print("\nVariations:")
-    for v, c in vars_count.most_common():
-        print(f"  {v}: {c}")
+    if not quiet:
+        print("\nVariations:")
+        for v, c in vars_count.most_common():
+            print(f"  {v}: {c}")
 
     # Write JSON
     data = {'games': french_games}
-    with open('/tmp/french_data.json', 'w') as f:
+    with open(output_json, 'w') as f:
         json.dump(data, f, default=str)
-    print(f"\nWrote /tmp/french_data.json")
+    if not quiet:
+        print(f"\nWrote {output_json}")
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description='Tag French Defense games with thematic categories.')
+    parser.add_argument('--db', default=PGN, help='Path to PGN database')
+    parser.add_argument('--output', default=OUTPUT_JSON, help='Path to output JSON')
+    parser.add_argument('--quiet', action='store_true', help='Reduce stats output')
+    args = parser.parse_args(argv)
+    run(pgn_path=args.db, output_json=args.output, quiet=args.quiet)
 
 
 if __name__ == '__main__':

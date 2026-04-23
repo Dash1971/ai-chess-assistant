@@ -6,13 +6,17 @@ Usage: python3 generate_french_pdf.py
 """
 
 import json
+import os
 import chess
 import chess.svg
 import weasyprint
 from datetime import datetime
 from diagram_helpers import diagram_html, DIAGRAM_CSS
 
-with open('/tmp/french_data.json') as f:
+INPUT_JSON = os.environ.get('OPENING_GUIDE_INPUT', '/tmp/french_data.json')
+HTML_DEBUG = os.environ.get('OPENING_GUIDE_HTML', '/tmp/french_cheatsheet.html')
+
+with open(INPUT_JSON) as f:
     data = json.load(f)
 
 games = data['games']
@@ -397,7 +401,7 @@ Based on Aman Hambleton's (sterkurstrakur) French Defense Speedrun &bull; Genera
 <div class="overview-box">
 <p><strong>The French Defense: 1.e4 e6</strong> — We immediately signal that the center will be contested, not surrendered. The pawn on e6 supports ...d5 on the next move, challenging White's e4 directly.</p>
 <p><strong>The deal:</strong> We get a solid, closed center and clear strategic plans. The price? Our light-squared bishop gets locked behind the e6/d5 pawn chain — the "bad French bishop." Almost every plan in the French revolves around either solving this problem or making it irrelevant.</p>
-<p><strong>The speedrun record:</strong> <span class="key-stat">{n_wins}/{n_games} wins ({n_wins*100//n_games}%)</span> <span class="key-stat">1 draw</span> <span class="key-stat">1 loss (likely vs Stockfish)</span></p>
+<p><strong>The speedrun record:</strong> <span class="key-stat">{n_wins}/{n_games} wins ({n_wins*100//max(1,n_games)}%)</span> <span class="key-stat">1 draw</span> <span class="key-stat">1 loss (likely vs Stockfish)</span></p>
 </div>
 
 {DIAG_OVERVIEW}
@@ -733,7 +737,7 @@ Based on Aman Hambleton's (sterkurstrakur) French Defense Speedrun &bull; Genera
 
 <p>The French is reactive — our plans depend on what White does. Here are the most common disruptions and how Aman handles them.</p>
 
-<h3>Nc3 — Attacks d5 ({len(tagged('opp_nc3'))} games, {len(tagged('opp_nc3'))*100//n_games}%)</h3>
+<h3>Nc3 — Attacks d5 ({len(tagged('opp_nc3'))} games, {len(tagged('opp_nc3'))*100//max(1,n_games)}%)</h3>
 <div class="overview-box">
 <p>The most common disruption. The knight attacks our d5 pawn and often prevents our aggressive exchange setup. When Nc3 hits, we may need to defend d5 (with Be6, or c6) or pivot to the conservative plan.</p>
 <p>From the annotations: "Again, we can't play our system here as the d5 pawn is hit."</p>
@@ -754,7 +758,7 @@ Based on Aman Hambleton's (sterkurstrakur) French Defense Speedrun &bull; Genera
 <p>On the open e-file, White can play Re1+ which checks our king and forces us to deal with it — either blocking with a piece (losing that piece's flexibility) or moving the king (losing castling rights). Often comes as part of the c4 + Nc3 + O-O + Re1 battery that dismantles the Stonewall attempt.</p>
 </div>
 
-<h3>Bg5 — The Pin ({len(tagged('opp_bg5_pin'))} games, {len(tagged('opp_bg5_pin'))*100//n_games}%)</h3>
+<h3>Bg5 — The Pin ({len(tagged('opp_bg5_pin'))} games, {len(tagged('opp_bg5_pin'))*100//max(1,n_games)}%)</h3>
 <div class="overview-box">
 <p>A common move that pins our knight. In the aggressive exchange, we answer with <strong>f6</strong> — which we wanted to play anyway. f6 repels the bishop, controls e5 and g5, and prepares our pawn storm. The "pin" actually accelerates our plan. See Section 3 (Plan B) for details.</p>
 </div>
@@ -806,45 +810,45 @@ Based on Aman Hambleton's (sterkurstrakur) French Defense Speedrun &bull; Genera
 <h3>Variation Distribution</h3>
 <table class="stat-table">
 <tr><th>Variation</th><th>Games</th><th>%</th></tr>
-<tr><td>Exchange (all)</td><td>{n_exchange}</td><td>{n_exchange*100//n_games}%</td></tr>
-<tr><td>Advanced (non-Winawer)</td><td>{len(by_var('advanced'))}</td><td>{len(by_var('advanced'))*100//n_games}%</td></tr>
-<tr><td>Winawer Advanced</td><td>{len(by_var('winawer_advanced'))}</td><td>{len(by_var('winawer_advanced'))*100//n_games}%</td></tr>
-<tr><td>Winawer Exchange</td><td>{len(by_var('winawer_exchange'))}</td><td>{len(by_var('winawer_exchange'))*100//n_games}%</td></tr>
-<tr><td>Winawer Ne2 Gambit</td><td>{len(by_var('winawer_ne2_gambit'))}</td><td>{len(by_var('winawer_ne2_gambit'))*100//n_games}%</td></tr>
-<tr><td>Tarrasch</td><td>{n_tarrasch}</td><td>{n_tarrasch*100//n_games}%</td></tr>
-<tr><td>Other/Sidelines</td><td>{n_other + n_kia}</td><td>{(n_other+n_kia)*100//n_games}%</td></tr>
+<tr><td>Exchange (all)</td><td>{n_exchange}</td><td>{n_exchange*100//max(1,n_games)}%</td></tr>
+<tr><td>Advanced (non-Winawer)</td><td>{len(by_var('advanced'))}</td><td>{len(by_var('advanced'))*100//max(1,n_games)}%</td></tr>
+<tr><td>Winawer Advanced</td><td>{len(by_var('winawer_advanced'))}</td><td>{len(by_var('winawer_advanced'))*100//max(1,n_games)}%</td></tr>
+<tr><td>Winawer Exchange</td><td>{len(by_var('winawer_exchange'))}</td><td>{len(by_var('winawer_exchange'))*100//max(1,n_games)}%</td></tr>
+<tr><td>Winawer Ne2 Gambit</td><td>{len(by_var('winawer_ne2_gambit'))}</td><td>{len(by_var('winawer_ne2_gambit'))*100//max(1,n_games)}%</td></tr>
+<tr><td>Tarrasch</td><td>{n_tarrasch}</td><td>{n_tarrasch*100//max(1,n_games)}%</td></tr>
+<tr><td>Other/Sidelines</td><td>{n_other + n_kia}</td><td>{(n_other+n_kia)*100//max(1,n_games)}%</td></tr>
 </table>
 
 <h3>Castling Patterns</h3>
 <table class="stat-table">
 <tr><th>Pattern</th><th>Games</th><th>%</th></tr>
-<tr><td>O-O (kingside)</td><td>{len(tagged('castle_kingside'))}</td><td>{len(tagged('castle_kingside'))*100//n_games}%</td></tr>
-<tr><td>O-O-O (queenside)</td><td>{len(tagged('castle_queenside'))}</td><td>{len(tagged('castle_queenside'))*100//n_games}%</td></tr>
-<tr><td>Never castled</td><td>{n_games - len(tagged('castle_kingside')) - len(tagged('castle_queenside'))}</td><td>{(n_games - len(tagged('castle_kingside')) - len(tagged('castle_queenside')))*100//n_games}%</td></tr>
+<tr><td>O-O (kingside)</td><td>{len(tagged('castle_kingside'))}</td><td>{len(tagged('castle_kingside'))*100//max(1,n_games)}%</td></tr>
+<tr><td>O-O-O (queenside)</td><td>{len(tagged('castle_queenside'))}</td><td>{len(tagged('castle_queenside'))*100//max(1,n_games)}%</td></tr>
+<tr><td>Never castled</td><td>{n_games - len(tagged('castle_kingside')) - len(tagged('castle_queenside'))}</td><td>{(n_games - len(tagged('castle_kingside')) - len(tagged('castle_queenside')))*100//max(1,n_games)}%</td></tr>
 </table>
 
 <h3>Key Move Frequencies</h3>
 <table class="stat-table">
 <tr><th>Our Move</th><th>Games</th><th>%</th><th>Context</th></tr>
-<tr><td>Nc6</td><td>{len(tagged('nc6_develop'))}</td><td>{len(tagged('nc6_develop'))*100//n_games}%</td><td>Universal development move</td></tr>
-<tr><td>c5 break</td><td>{len(tagged('c5_break'))}</td><td>{len(tagged('c5_break'))*100//n_games}%</td><td>Key pawn lever in advanced/Tarrasch</td></tr>
-<tr><td>h6 snork</td><td>{len(tagged('h6_snork'))}</td><td>{len(tagged('h6_snork'))*100//n_games}%</td><td>Luft + prevents Bg5/Ng5</td></tr>
-<tr><td>Ne7</td><td>{len(tagged('ne7_develop'))}</td><td>{len(tagged('ne7_develop'))*100//n_games}%</td><td>Key in both Winawer and exchange</td></tr>
-<tr><td>Bb4 pin</td><td>{len(tagged('bb4_pin'))}</td><td>{len(tagged('bb4_pin'))*100//n_games}%</td><td>The Winawer move</td></tr>
-<tr><td>h5 push</td><td>{len(tagged('h5_push'))}</td><td>{len(tagged('h5_push'))*100//n_games}%</td><td>Kingside expansion / prevents Nf4</td></tr>
-<tr><td>Qb6</td><td>{len(tagged('qb6_pressure'))}</td><td>{len(tagged('qb6_pressure'))*100//n_games}%</td><td>Pressure on d4/b2 in advanced</td></tr>
-<tr><td>f6</td><td>{len(tagged('f6_control'))}</td><td>{len(tagged('f6_control'))*100//n_games}%</td><td>Controls e5/g5, prepares storm</td></tr>
-<tr><td>g5 push</td><td>{len(tagged('g5_push'))}</td><td>{len(tagged('g5_push'))*100//n_games}%</td><td>Kingside pawn storm</td></tr>
-<tr><td>Bg4</td><td>{len(tagged('lsb_bg4'))}</td><td>{len(tagged('lsb_bg4'))*100//n_games}%</td><td>LSB development + pin</td></tr>
-<tr><td>Bf5</td><td>{len(tagged('lsb_bf5'))}</td><td>{len(tagged('lsb_bf5'))*100//n_games}%</td><td>Active LSB on the diagonal</td></tr>
+<tr><td>Nc6</td><td>{len(tagged('nc6_develop'))}</td><td>{len(tagged('nc6_develop'))*100//max(1,n_games)}%</td><td>Universal development move</td></tr>
+<tr><td>c5 break</td><td>{len(tagged('c5_break'))}</td><td>{len(tagged('c5_break'))*100//max(1,n_games)}%</td><td>Key pawn lever in advanced/Tarrasch</td></tr>
+<tr><td>h6 snork</td><td>{len(tagged('h6_snork'))}</td><td>{len(tagged('h6_snork'))*100//max(1,n_games)}%</td><td>Luft + prevents Bg5/Ng5</td></tr>
+<tr><td>Ne7</td><td>{len(tagged('ne7_develop'))}</td><td>{len(tagged('ne7_develop'))*100//max(1,n_games)}%</td><td>Key in both Winawer and exchange</td></tr>
+<tr><td>Bb4 pin</td><td>{len(tagged('bb4_pin'))}</td><td>{len(tagged('bb4_pin'))*100//max(1,n_games)}%</td><td>The Winawer move</td></tr>
+<tr><td>h5 push</td><td>{len(tagged('h5_push'))}</td><td>{len(tagged('h5_push'))*100//max(1,n_games)}%</td><td>Kingside expansion / prevents Nf4</td></tr>
+<tr><td>Qb6</td><td>{len(tagged('qb6_pressure'))}</td><td>{len(tagged('qb6_pressure'))*100//max(1,n_games)}%</td><td>Pressure on d4/b2 in advanced</td></tr>
+<tr><td>f6</td><td>{len(tagged('f6_control'))}</td><td>{len(tagged('f6_control'))*100//max(1,n_games)}%</td><td>Controls e5/g5, prepares storm</td></tr>
+<tr><td>g5 push</td><td>{len(tagged('g5_push'))}</td><td>{len(tagged('g5_push'))*100//max(1,n_games)}%</td><td>Kingside pawn storm</td></tr>
+<tr><td>Bg4</td><td>{len(tagged('lsb_bg4'))}</td><td>{len(tagged('lsb_bg4'))*100//max(1,n_games)}%</td><td>LSB development + pin</td></tr>
+<tr><td>Bf5</td><td>{len(tagged('lsb_bf5'))}</td><td>{len(tagged('lsb_bf5'))*100//max(1,n_games)}%</td><td>Active LSB on the diagonal</td></tr>
 </table>
 
 <h3>Game Length Distribution</h3>
 <table class="stat-table">
 <tr><th>Length</th><th>Games</th><th>%</th></tr>
-<tr><td>Quick wins (≤20 moves)</td><td>{len(tagged('quick_win'))}</td><td>{len(tagged('quick_win'))*100//n_games}%</td></tr>
-<tr><td>Medium (21-39 moves)</td><td>{n_games - len(tagged('quick_win')) - len(tagged('long_game'))}</td><td>{(n_games - len(tagged('quick_win')) - len(tagged('long_game')))*100//n_games}%</td></tr>
-<tr><td>Long (40+ moves)</td><td>{len(tagged('long_game'))}</td><td>{len(tagged('long_game'))*100//n_games}%</td></tr>
+<tr><td>Quick wins (≤20 moves)</td><td>{len(tagged('quick_win'))}</td><td>{len(tagged('quick_win'))*100//max(1,n_games)}%</td></tr>
+<tr><td>Medium (21-39 moves)</td><td>{n_games - len(tagged('quick_win')) - len(tagged('long_game'))}</td><td>{(n_games - len(tagged('quick_win')) - len(tagged('long_game')))*100//max(1,n_games)}%</td></tr>
+<tr><td>Long (40+ moves)</td><td>{len(tagged('long_game'))}</td><td>{len(tagged('long_game'))*100//max(1,n_games)}%</td></tr>
 </table>
 
 <!-- ============================================================ -->
@@ -939,12 +943,12 @@ html += f'''
 </html>'''
 
 # Write HTML for debugging
-with open('/tmp/french_cheatsheet.html', 'w') as f:
+with open(HTML_DEBUG, 'w') as f:
     f.write(html)
 
 # Generate PDF
 from pathlib import Path
-output_path = Path(__file__).resolve().parent / 'french-cheatsheet.pdf'
+output_path = Path(os.environ.get('OPENING_GUIDE_OUTPUT', str(Path(__file__).resolve().parent / 'french-cheatsheet.pdf')))
 weasyprint.HTML(string=html).write_pdf(str(output_path))
 print(f'PDF generated: {output_path}')
 print(f'  {n_games} games')

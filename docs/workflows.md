@@ -9,6 +9,32 @@
 - opening concept and study-output generation
 - chess.com speedrun PGN extraction for later study ingestion
 
+## Generic opening-guide pipeline
+
+The repo now exposes a generic opening pipeline layer in `chess_tools/`:
+
+- `opening_configs.py` — opening registry/configuration
+- `tag_opening.py` — generic opening tagger entry point
+- `generate_opening_guide.py` — generic guide generator entry point
+
+Current configured openings:
+- `stonewall`
+- `french`
+
+The older opening-specific scripts still work, but they are no longer the only interface.
+
+Example usage:
+
+```bash
+python3 chess_tools/tag_opening.py stonewall --db <games.pgn> --output /tmp/stonewall.json
+python3 chess_tools/generate_opening_guide.py stonewall --input /tmp/stonewall.json --output stonewall-cheatsheet.pdf
+```
+
+```bash
+python3 chess_tools/tag_opening.py french --db <games.pgn> --output /tmp/french.json
+python3 chess_tools/generate_opening_guide.py french --input /tmp/french.json --output french-cheatsheet.pdf
+```
+
 ## Typical study flow
 
 The usual operating sequence is:

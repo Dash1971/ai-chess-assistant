@@ -11,13 +11,17 @@ ANTI-REGRESSION RULES:
 """
 
 import json
+import os
 import chess
 import chess.svg
 import weasyprint
 from datetime import datetime
 from diagram_helpers import diagram_html, DIAGRAM_CSS
 
-with open('/tmp/sw_data.json') as f:
+INPUT_JSON = os.environ.get('OPENING_GUIDE_INPUT', '/tmp/sw_data.json')
+HTML_DEBUG = os.environ.get('OPENING_GUIDE_HTML', '/tmp/stonewall_cheatsheet.html')
+
+with open(INPUT_JSON) as f:
     data = json.load(f)
 
 white_games = data['white_games']
@@ -344,19 +348,19 @@ Based on Aman Hambleton's (wonestall) Stonewall Speedrun &bull; Generated {today
 
 <h3>The Five Middlegame Plans</h3>
 
-<p><strong>Plan A: The Ne5 Squeeze ({len(tagged(white_games, 'ne5'))} games, {len(tagged(white_games, 'ne5'))*100//n_white}%)</strong><br>
+<p><strong>Plan A: The Ne5 Squeeze ({len(tagged(white_games, 'ne5'))} games, {len(tagged(white_games, 'ne5'))*100//max(1,n_white)}%)</strong><br>
 Plant your knight on e5. From there it attacks f7, supports Qf3/Qh5, and controls key squares. Average move: ~11.</p>
 
-<p><strong>Plan B: The g4 Storm ({len(tagged(white_games, 'g4_storm'))} games, {len(tagged(white_games, 'g4_storm'))*100//n_white}%)</strong><br>
+<p><strong>Plan B: The g4 Storm ({len(tagged(white_games, 'g4_storm'))} games, {len(tagged(white_games, 'g4_storm'))*100//max(1,n_white)}%)</strong><br>
 Push g4 to blast open the g-file. Often preceded by Qf3 and Rg1/Rf3. See <strong>Section 7</strong> for the full breakdown of when and how.</p>
 
-<p><strong>Plan C: The e4 Break ({len(tagged(white_games, 'e4_break'))} games, {len(tagged(white_games, 'e4_break'))*100//n_white}%)</strong><br>
+<p><strong>Plan C: The e4 Break ({len(tagged(white_games, 'e4_break'))} games, {len(tagged(white_games, 'e4_break'))*100//max(1,n_white)}%)</strong><br>
 The most reliable central break — 100% win rate. Push e3→e4 to open the center, free the DSB, and create tactical threats. See <strong>Section 6</strong> for the complete analysis with triggers, plans, and timing.</p>
 
 <p><strong>Plan D: Bishop Attacks — Bxh7+ & Bxh6 ({len(tagged(white_games, 'bxh7_attack'))} + {len(tagged(white_games, 'bxh6_attack'))} games)</strong><br>
 Two distinct bishop attacks: the LSB sacrifice on h7 (Greek Gift), and the DSB sacrifice on h6 (ripping open the kingside after ...h6). See <strong>Section 9</strong> for full breakdown.</p>
 
-<p><strong>Plan E: The DSB Maneuver ({len(tagged(white_games, 'dsb_maneuver'))} games, {len(tagged(white_games, 'dsb_maneuver'))*100//n_white}%)</strong><br>
+<p><strong>Plan E: The DSB Maneuver ({len(tagged(white_games, 'dsb_maneuver'))} games, {len(tagged(white_games, 'dsb_maneuver'))*100//max(1,n_white)}%)</strong><br>
 Bd2→Be1→Bh4 to activate the "bad" bishop. See <strong>Section 8</strong> for triggers and when to use it.</p>
 
 <div class="insight">
@@ -417,7 +421,7 @@ The Stonewall arises via a French Defence move order.
 
 <h3>Middlegame Plans</h3>
 
-<p><strong>Plan A: The Ne4 Outpost ({len(tagged(black_games, 'ne4'))} games, {len(tagged(black_games, 'ne4'))*100//n_black}%)</strong><br>
+<p><strong>Plan A: The Ne4 Outpost ({len(tagged(black_games, 'ne4'))} games, {len(tagged(black_games, 'ne4'))*100//max(1,n_black)}%)</strong><br>
 The backbone of Black's middlegame. Plant a knight on e4, attacking d2/f2 and controlling key squares. Average move: ~11.</p>
 
 <p><strong>Plan B: The LSB Maneuver ({len(tagged(black_games, 'lsb_maneuver'))} games)</strong><br>
@@ -433,7 +437,7 @@ The aggressive kingside pawn advance. Rare but powerful — this is the Black mi
 The Black mirror of White's Bxh7+ Greek Gift — sacrificing the dark-squared bishop to expose White's king.</p>
 
 <h3>Dealing with Ne5</h3>
-<p>White played Ne5 in <strong>{len(tagged(black_games, 'opp_ne5'))} of {n_black} games ({len(tagged(black_games, 'opp_ne5'))*100//n_black}%)</strong>. Aman's response: <em>ignore it and continue with the plan.</em> The pawn wall (d5-e6-f5-c6) is structurally sound regardless. Black's counterplay comes from Ne4 and the kingside, not from fighting for e5.</p>
+<p>White played Ne5 in <strong>{len(tagged(black_games, 'opp_ne5'))} of {n_black} games ({len(tagged(black_games, 'opp_ne5'))*100//max(1,n_black)}%)</strong>. Aman's response: <em>ignore it and continue with the plan.</em> The pawn wall (d5-e6-f5-c6) is structurally sound regardless. Black's counterplay comes from Ne4 and the kingside, not from fighting for e5.</p>
 
 <div class="heuristic">
 <strong>💡 New black-side nuance:</strong> <strong>...Nd7</strong> is a tool, not a law. The refreshed notes show it used in <strong>{len(tagged(black_games, 'nd7_prophylaxis'))} games</strong> to stop Ne5, but later games often prefer castling, bishop activity, or a direct <strong>...Ne4</strong> plan instead. If ...Nd7 kills your c-pawn flexibility or points you toward an ugly <strong>...cxd5</strong> recapture, don't force it.
@@ -451,20 +455,20 @@ The Black mirror of White's Bxh7+ Greek Gift — sacrificing the dark-squared bi
 <tr><th>Feature</th><th>White</th><th>Black</th></tr>
 <tr><td>Core pawn chain</td><td>d4-e3-f4</td><td>d5-e6-f5</td></tr>
 <tr><td>Average castling move</td><td>8.3</td><td>8.4</td></tr>
-<tr><td>Knight outpost</td><td>Ne5 ({len(tagged(white_games, 'ne5'))*100//n_white}%)</td><td>Ne4 ({len(tagged(black_games, 'ne4'))*100//n_black}%)</td></tr>
+<tr><td>Knight outpost</td><td>Ne5 ({len(tagged(white_games, 'ne5'))*100//max(1,n_white)}%)</td><td>Ne4 ({len(tagged(black_games, 'ne4'))*100//max(1,n_black)}%)</td></tr>
 <tr><td>Outpost timing</td><td>Move ~11</td><td>Move ~11</td></tr>
 <tr><td>Bad bishop maneuver</td><td>DSB: Bd2→Be1→Bh4</td><td>LSB: Bd7→Be8→Bh5</td></tr>
-<tr><td>Bishop attacks</td><td>Bxh7+ ({len(tagged(white_games, 'bxh7_attack'))*100//n_white}%) + Bxh6 ({len(tagged(white_games, 'bxh6_attack'))*100//n_white}%)</td><td>Bxh2+ (rare)</td></tr>
-<tr><td>Central break</td><td>e4 ({len(tagged(white_games, 'e4_break'))*100//n_white}%)</td><td>e5 ({len(tagged(black_games, 'e5_break'))*100//n_black}%)</td></tr>
+<tr><td>Bishop attacks</td><td>Bxh7+ ({len(tagged(white_games, 'bxh7_attack'))*100//max(1,n_white)}%) + Bxh6 ({len(tagged(white_games, 'bxh6_attack'))*100//max(1,n_white)}%)</td><td>Bxh2+ (rare)</td></tr>
+<tr><td>Central break</td><td>e4 ({len(tagged(white_games, 'e4_break'))*100//max(1,n_white)}%)</td><td>e5 ({len(tagged(black_games, 'e5_break'))*100//max(1,n_black)}%)</td></tr>
 </table>
 
 <h3>What's Different</h3>
 <table class="stat-table">
 <tr><th>Aspect</th><th>White</th><th>Black</th></tr>
 <tr><td><strong>Opening priority</strong></td><td>Piece development (Bd3 by move 3)</td><td>Pawn structure (3-4 pawns before pieces)</td></tr>
-<tr><td><strong>Bad bishop strategy</strong></td><td>Often leave DSB on c1 ({(n_white-len(tagged(white_games, 'dsb_maneuver')))*100//n_white}% never moves). General-purpose maneuver.</td><td>LSB maneuver is more specialized — about {len(tagged(black_games, 'lsb_vs_symmetrical'))*100//max(1,len(tagged(black_games, 'lsb_maneuver')))}% of LSB maneuver games are triggered by symmetrical structures.</td></tr>
-<tr><td><strong>Preventing infiltration</strong></td><td>Often uses Nd2 to prevent ...Nd4 (60 games total)</td><td>Tolerates Ne5 ({len(tagged(black_games, 'opp_ne5'))*100//n_black}% of games)</td></tr>
-<tr><td><strong>Kingside storm</strong></td><td>g4 ({len(tagged(white_games, 'g4_storm'))*100//n_white}%) — multiple triggers</td><td>g5 ({len(tagged(black_games, 'g5_push'))*100//n_black}%) — much rarer</td></tr>
+<tr><td><strong>Bad bishop strategy</strong></td><td>Often leave DSB on c1 ({(n_white-len(tagged(white_games, 'dsb_maneuver')))*100//max(1,n_white)}% never moves). General-purpose maneuver.</td><td>LSB maneuver is more specialized — about {len(tagged(black_games, 'lsb_vs_symmetrical'))*100//max(1,len(tagged(black_games, 'lsb_maneuver')))}% of LSB maneuver games are triggered by symmetrical structures.</td></tr>
+<tr><td><strong>Preventing infiltration</strong></td><td>Often uses Nd2 to prevent ...Nd4 (60 games total)</td><td>Tolerates Ne5 ({len(tagged(black_games, 'opp_ne5'))*100//max(1,n_black)}% of games)</td></tr>
+<tr><td><strong>Kingside storm</strong></td><td>g4 ({len(tagged(white_games, 'g4_storm'))*100//max(1,n_white)}%) — multiple triggers</td><td>g5 ({len(tagged(black_games, 'g5_push'))*100//max(1,n_black)}%) — much rarer</td></tr>
 </table>
 
 <h3>The Mirror Patterns</h3>
@@ -479,8 +483,8 @@ The Black mirror of White's Bxh7+ Greek Gift — sacrificing the dark-squared bi
 <strong>🚫 What does NOT transfer:</strong>
 <ul>
 <li><strong>Nd2 urgency</strong> — White must prevent ...Nd4; Black tolerates Ne5 because the wall is structurally sound.</li>
-<li><strong>g4 frequency</strong> — White pushes g4 in {len(tagged(white_games, 'g4_storm'))*100//n_white}% of games; Black pushes g5 in only {len(tagged(black_games, 'g5_push'))*100//n_black}%.</li>
-<li><strong>e4/e5 break frequency</strong> — White has e4 ({len(tagged(white_games, 'e4_break'))*100//n_white}%); Black has ...e5 but much rarer ({len(tagged(black_games, 'e5_break'))*100//n_black}%).</li>
+<li><strong>g4 frequency</strong> — White pushes g4 in {len(tagged(white_games, 'g4_storm'))*100//max(1,n_white)}% of games; Black pushes g5 in only {len(tagged(black_games, 'g5_push'))*100//max(1,n_black)}%.</li>
+<li><strong>e4/e5 break frequency</strong> — White has e4 ({len(tagged(white_games, 'e4_break'))*100//max(1,n_white)}%); Black has ...e5 but much rarer ({len(tagged(black_games, 'e5_break'))*100//max(1,n_black)}%).</li>
 </ul>
 </div>
 
@@ -512,36 +516,36 @@ The Black mirror of White's Bxh7+ Greek Gift — sacrificing the dark-squared bi
 <h3>Knight Outpost Comparison</h3>
 <table class="stat-table">
 <tr><th>Metric</th><th>White (Ne5)</th><th>Black (Ne4)</th></tr>
-<tr><td>Games with outpost</td><td>{len(tagged(white_games, 'ne5'))}/{n_white} ({len(tagged(white_games, 'ne5'))*100//n_white}%)</td><td>{len(tagged(black_games, 'ne4'))}/{n_black} ({len(tagged(black_games, 'ne4'))*100//n_black}%)</td></tr>
+<tr><td>Games with outpost</td><td>{len(tagged(white_games, 'ne5'))}/{n_white} ({len(tagged(white_games, 'ne5'))*100//max(1,n_white)}%)</td><td>{len(tagged(black_games, 'ne4'))}/{n_black} ({len(tagged(black_games, 'ne4'))*100//max(1,n_black)}%)</td></tr>
 <tr><td>Average timing</td><td>Move ~11</td><td>Move ~11</td></tr>
 </table>
 
 <h3>Attack Patterns (White)</h3>
 <table class="stat-table">
 <tr><th>Attack Type</th><th>Games</th><th>Rate</th></tr>
-<tr><td>Ne5 outpost</td><td>{len(tagged(white_games, 'ne5'))}</td><td>{len(tagged(white_games, 'ne5'))*100//n_white}%</td></tr>
-<tr><td>g4 kingside storm</td><td>{len(tagged(white_games, 'g4_storm'))}</td><td>{len(tagged(white_games, 'g4_storm'))*100//n_white}%</td></tr>
-<tr><td>e4 central break</td><td>{len(tagged(white_games, 'e4_break'))}</td><td>{len(tagged(white_games, 'e4_break'))*100//n_white}%</td></tr>
-<tr><td>DSB maneuver</td><td>{len(tagged(white_games, 'dsb_maneuver'))}</td><td>{len(tagged(white_games, 'dsb_maneuver'))*100//n_white}%</td></tr>
-<tr><td>Qf3 setup</td><td>{len(tagged(white_games, 'qf3'))}</td><td>{len(tagged(white_games, 'qf3'))*100//n_white}%</td></tr>
-<tr><td>Bxh7+ Greek gift</td><td>{len(tagged(white_games, 'bxh7_attack'))}</td><td>{len(tagged(white_games, 'bxh7_attack'))*100//n_white}%</td></tr>
-<tr><td>Queen support (Qc2/Qe1/Qe2)</td><td>{len(tagged(white_games, 'queen_guard_e4'))}</td><td>{len(tagged(white_games, 'queen_guard_e4'))*100//n_white}%</td></tr>
-<tr><td>Rxf3 / exchange sac motif</td><td>{len(tagged(white_games, 'rxf3_sac'))}</td><td>{len(tagged(white_games, 'rxf3_sac'))*100//n_white}%</td></tr>
-<tr><td>Quick wins (≤20 moves)</td><td>{len(tagged(white_games, 'quick_win'))}</td><td>{len(tagged(white_games, 'quick_win'))*100//n_white}%</td></tr>
+<tr><td>Ne5 outpost</td><td>{len(tagged(white_games, 'ne5'))}</td><td>{len(tagged(white_games, 'ne5'))*100//max(1,n_white)}%</td></tr>
+<tr><td>g4 kingside storm</td><td>{len(tagged(white_games, 'g4_storm'))}</td><td>{len(tagged(white_games, 'g4_storm'))*100//max(1,n_white)}%</td></tr>
+<tr><td>e4 central break</td><td>{len(tagged(white_games, 'e4_break'))}</td><td>{len(tagged(white_games, 'e4_break'))*100//max(1,n_white)}%</td></tr>
+<tr><td>DSB maneuver</td><td>{len(tagged(white_games, 'dsb_maneuver'))}</td><td>{len(tagged(white_games, 'dsb_maneuver'))*100//max(1,n_white)}%</td></tr>
+<tr><td>Qf3 setup</td><td>{len(tagged(white_games, 'qf3'))}</td><td>{len(tagged(white_games, 'qf3'))*100//max(1,n_white)}%</td></tr>
+<tr><td>Bxh7+ Greek gift</td><td>{len(tagged(white_games, 'bxh7_attack'))}</td><td>{len(tagged(white_games, 'bxh7_attack'))*100//max(1,n_white)}%</td></tr>
+<tr><td>Queen support (Qc2/Qe1/Qe2)</td><td>{len(tagged(white_games, 'queen_guard_e4'))}</td><td>{len(tagged(white_games, 'queen_guard_e4'))*100//max(1,n_white)}%</td></tr>
+<tr><td>Rxf3 / exchange sac motif</td><td>{len(tagged(white_games, 'rxf3_sac'))}</td><td>{len(tagged(white_games, 'rxf3_sac'))*100//max(1,n_white)}%</td></tr>
+<tr><td>Quick wins (≤20 moves)</td><td>{len(tagged(white_games, 'quick_win'))}</td><td>{len(tagged(white_games, 'quick_win'))*100//max(1,n_white)}%</td></tr>
 </table>
 
 <h3>Attack Patterns (Black)</h3>
 <table class="stat-table">
 <tr><th>Attack Type</th><th>Games</th><th>Rate</th></tr>
-<tr><td>Ne4 outpost</td><td>{len(tagged(black_games, 'ne4'))}</td><td>{len(tagged(black_games, 'ne4'))*100//n_black}%</td></tr>
-<tr><td>Queen reroute (Qe8/Qe7)</td><td>{len(tagged(black_games, 'queen_reroute'))}</td><td>{len(tagged(black_games, 'queen_reroute'))*100//n_black}%</td></tr>
-<tr><td>LSB maneuver</td><td>{len(tagged(black_games, 'lsb_maneuver'))}</td><td>{len(tagged(black_games, 'lsb_maneuver'))*100//n_black}%</td></tr>
-<tr><td>g5 kingside push</td><td>{len(tagged(black_games, 'g5_push'))}</td><td>{len(tagged(black_games, 'g5_push'))*100//n_black}%</td></tr>
-<tr><td>e5 central break</td><td>{len(tagged(black_games, 'e5_break'))}</td><td>{len(tagged(black_games, 'e5_break'))*100//n_black}%</td></tr>
-<tr><td>Bxh2+ sacrifice</td><td>{len(tagged(black_games, 'bxh2_attack'))}</td><td>{len(tagged(black_games, 'bxh2_attack'))*100//n_black}%</td></tr>
-<tr><td>...Nd7 prophylaxis</td><td>{len(tagged(black_games, 'nd7_prophylaxis'))}</td><td>{len(tagged(black_games, 'nd7_prophylaxis'))*100//n_black}%</td></tr>
-<tr><td>Full wall (d5+e6+f5+c6)</td><td>{len(tagged(black_games, 'full_wall'))}</td><td>{len(tagged(black_games, 'full_wall'))*100//n_black}%</td></tr>
-<tr><td>Quick wins (≤20 moves)</td><td>{len(tagged(black_games, 'quick_win'))}</td><td>{len(tagged(black_games, 'quick_win'))*100//n_black}%</td></tr>
+<tr><td>Ne4 outpost</td><td>{len(tagged(black_games, 'ne4'))}</td><td>{len(tagged(black_games, 'ne4'))*100//max(1,n_black)}%</td></tr>
+<tr><td>Queen reroute (Qe8/Qe7)</td><td>{len(tagged(black_games, 'queen_reroute'))}</td><td>{len(tagged(black_games, 'queen_reroute'))*100//max(1,n_black)}%</td></tr>
+<tr><td>LSB maneuver</td><td>{len(tagged(black_games, 'lsb_maneuver'))}</td><td>{len(tagged(black_games, 'lsb_maneuver'))*100//max(1,n_black)}%</td></tr>
+<tr><td>g5 kingside push</td><td>{len(tagged(black_games, 'g5_push'))}</td><td>{len(tagged(black_games, 'g5_push'))*100//max(1,n_black)}%</td></tr>
+<tr><td>e5 central break</td><td>{len(tagged(black_games, 'e5_break'))}</td><td>{len(tagged(black_games, 'e5_break'))*100//max(1,n_black)}%</td></tr>
+<tr><td>Bxh2+ sacrifice</td><td>{len(tagged(black_games, 'bxh2_attack'))}</td><td>{len(tagged(black_games, 'bxh2_attack'))*100//max(1,n_black)}%</td></tr>
+<tr><td>...Nd7 prophylaxis</td><td>{len(tagged(black_games, 'nd7_prophylaxis'))}</td><td>{len(tagged(black_games, 'nd7_prophylaxis'))*100//max(1,n_black)}%</td></tr>
+<tr><td>Full wall (d5+e6+f5+c6)</td><td>{len(tagged(black_games, 'full_wall'))}</td><td>{len(tagged(black_games, 'full_wall'))*100//max(1,n_black)}%</td></tr>
+<tr><td>Quick wins (≤20 moves)</td><td>{len(tagged(black_games, 'quick_win'))}</td><td>{len(tagged(black_games, 'quick_win'))*100//max(1,n_black)}%</td></tr>
 </table>
 
 <h3>Opponent Counterplay (White)</h3>
@@ -673,7 +677,7 @@ The Black mirror of White's Bxh7+ Greek Gift — sacrificing the dark-squared bi
     arrows=[chess.svg.Arrow(chess.E3, chess.E4, color='#22aa22aa')]
 )}
 
-<p>The e4 central break appears in <strong>{len(tagged(white_games, 'e4_break'))} of {n_white} games ({len(tagged(white_games, 'e4_break'))*100//n_white}%)</strong> — and carries a <strong>100% win rate</strong>. When Aman pushes e4, he wins. Every time. This is not coincidence: the break only works when the position is ready, and Aman reads the signs accurately.</p>
+<p>The e4 central break appears in <strong>{len(tagged(white_games, 'e4_break'))} of {n_white} games ({len(tagged(white_games, 'e4_break'))*100//max(1,n_white)}%)</strong> — and carries a <strong>100% win rate</strong>. When Aman pushes e4, he wins. Every time. This is not coincidence: the break only works when the position is ready, and Aman reads the signs accurately.</p>
 
 <div class="insight">
 <strong>📊 Key Stats:</strong> {len(tagged(white_games, 'e4_break'))} games with e4 break, all won. Average move: ~12-14. Most common after opponent plays ...c4 (71% e4 rate vs 41% without). Ne5 on the board in {len(tagged(white_games, 'e4_ne5_on_board'))} games. Opponent not castled in {len(tagged(white_games, 'e4_opp_not_castled'))} games.
@@ -774,7 +778,7 @@ The Black mirror of White's Bxh7+ Greek Gift — sacrificing the dark-squared bi
     arrows=[chess.svg.Arrow(chess.G4, chess.G5, color='#ff0000aa')]
 )}
 
-<p>The g4 push appears in <strong>{len(tagged(white_games, 'g4_storm'))} of {n_white} games ({len(tagged(white_games, 'g4_storm'))*100//n_white}%)</strong> — nearly as common as e4, and the most dynamic attacking plan in the Stonewall. But it's not one plan — it has several distinct triggers.</p>
+<p>The g4 push appears in <strong>{len(tagged(white_games, 'g4_storm'))} of {n_white} games ({len(tagged(white_games, 'g4_storm'))*100//max(1,n_white)}%)</strong> — nearly as common as e4, and the most dynamic attacking plan in the Stonewall. But it's not one plan — it has several distinct triggers.</p>
 
 <h3>7a. g4 vs the ...e6 Structure</h3>
 <div class="overview-box">
@@ -805,7 +809,7 @@ The Black mirror of White's Bxh7+ Greek Gift — sacrificing the dark-squared bi
 {theme_box("g4 After ...Bxf3 — Key Games", "Opponent trades LSB for knight. No Ne5 available, but g4 exploits weakened light squares.", tagged(white_games, 'g4_after_bxf3'), True)}
 
 <div class="mirror-box">
-<strong>🪞 Black Mirror: The ...g5 Push ({len(tagged(black_games, 'g5_push'))} games, {len(tagged(black_games, 'g5_push'))*100//n_black}%)</strong><br>
+<strong>🪞 Black Mirror: The ...g5 Push ({len(tagged(black_games, 'g5_push'))} games, {len(tagged(black_games, 'g5_push'))*100//max(1,n_black)}%)</strong><br>
 The Black equivalent of g4 exists but is much rarer. Usually deployed after castling and establishing Ne4. The asymmetry: White has Bd3 aimed at h7 providing natural support for kingside aggression; Black's Bd6 aims at h2 but doesn't synergize with ...g5 in the same way.
 </div>
 
@@ -825,7 +829,7 @@ The Black equivalent of g4 exists but is much rarer. Usually deployed after cast
 )}
 
 <h3>8a. White: DSB Maneuver (Bd2→Be1→Bh4)</h3>
-<p><span class="key-stat">{len(tagged(white_games, 'dsb_maneuver'))} games ({len(tagged(white_games, 'dsb_maneuver'))*100//n_white}%)</span> <span class="key-stat">Full sequence to Bh4: {len(tagged(white_games, 'dsb_maneuver_full'))} games</span> <span class="key-stat">DSB never moves: {(n_white-len(tagged(white_games, 'dsb_maneuver')))*100//n_white}%</span></p>
+<p><span class="key-stat">{len(tagged(white_games, 'dsb_maneuver'))} games ({len(tagged(white_games, 'dsb_maneuver'))*100//max(1,n_white)}%)</span> <span class="key-stat">Full sequence to Bh4: {len(tagged(white_games, 'dsb_maneuver_full'))} games</span> <span class="key-stat">DSB never moves: {(n_white-len(tagged(white_games, 'dsb_maneuver')))*100//max(1,n_white)}%</span></p>
 
 <h4>Trigger 1: Symmetrical Stonewall / Dutch</h4>
 <div class="overview-box">
@@ -846,7 +850,7 @@ The Black equivalent of g4 exists but is much rarer. Usually deployed after cast
 {theme_box("DSB Maneuver vs KID / Indian Setups", "Opponent has uncommitted center (no ...d5). Controls e5 from behind. Time to activate DSB.", tagged(white_games, 'dsb_vs_kid'), True)}
 
 <div class="surprise">
-<strong>🔍 When NOT to bother:</strong> In {(n_white-len(tagged(white_games, 'dsb_maneuver')))*100//n_white}% of games, the DSB never moves at all. Don't waste time activating a bad piece when your good pieces (Bd3, Ne5) are already doing the job. The maneuver is for when the normal plans are denied.
+<strong>🔍 When NOT to bother:</strong> In {(n_white-len(tagged(white_games, 'dsb_maneuver')))*100//max(1,n_white)}% of games, the DSB never moves at all. Don't waste time activating a bad piece when your good pieces (Bd3, Ne5) are already doing the job. The maneuver is for when the normal plans are denied.
 </div>
 
 <h3>8b. Black: LSB Maneuver (Bd7→Be8→Bh5)</h3>
@@ -876,7 +880,7 @@ The Black equivalent of g4 exists but is much rarer. Usually deployed after cast
 <tr><th>Situation</th><th>White</th><th>Black</th></tr>
 <tr><td>Symmetrical structure blocks normal plan</td><td>DSB maneuver vs ...f5</td><td>LSB maneuver vs f4</td></tr>
 <tr><td>Indian-style setup blocks outpost</td><td>DSB maneuver vs KID (uncommitted center)</td><td>LSB maneuver vs KIA (uncommitted center)</td></tr>
-<tr><td>Normal plan available (outpost open)</td><td>Leave DSB on c1 ({(n_white-len(tagged(white_games, 'dsb_maneuver')))*100//n_white}%)</td><td>Play Ne4 instead ({len(tagged(black_games, 'ne4'))*100//n_black}%)</td></tr>
+<tr><td>Normal plan available (outpost open)</td><td>Leave DSB on c1 ({(n_white-len(tagged(white_games, 'dsb_maneuver')))*100//max(1,n_white)}%)</td><td>Play Ne4 instead ({len(tagged(black_games, 'ne4'))*100//max(1,n_black)}%)</td></tr>
 </table>
 </div>
 
@@ -1092,12 +1096,12 @@ html += f'''
 </html>'''
 
 # Write HTML for debugging
-with open('/tmp/stonewall_cheatsheet.html', 'w') as f:
+with open(HTML_DEBUG, 'w') as f:
     f.write(html)
 
 # Generate PDF
 from pathlib import Path
-output_path = Path(__file__).resolve().parent / 'stonewall-cheatsheet.pdf'
+output_path = Path(os.environ.get('OPENING_GUIDE_OUTPUT', str(Path(__file__).resolve().parent / 'stonewall-cheatsheet.pdf')))
 weasyprint.HTML(string=html).write_pdf(str(output_path))
 print(f'PDF generated: {output_path}')
 print(f'  {n_white} white + {n_black} black games')
