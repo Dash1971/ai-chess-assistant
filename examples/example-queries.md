@@ -2,17 +2,23 @@
 
 ## Study DB sync + search
 
-Update the local study database:
+Sync a study list into a local database:
 
 ```bash
 python3 chess_tools/update_db.py
 ```
 
-Search the full staged database:
+Search a local PGN corpus:
 
 ```bash
-python3 chess_tools/search.py --db data/study-db/games.pgn d4 d5 e3 e6 Bd3
+python3 chess_tools/search.py --db examples/sample_games.pgn d4 d5 e3 e6 Bd3
 ```
+
+## Typical workflow prompts
+
+> Sync my Lichess study list and show me the newest Stonewall examples with a black knight on e4.
+
+> Search the corpus for opposite-side castling plus a kingside pawn storm.
 
 ## AI coach game analysis
 
@@ -36,27 +42,12 @@ Typical prompt:
 
 > Build a scouting report for this opponent and summarize the biggest exploitable opening patterns.
 
-## Opening cheat sheets
+## Speedrun-study pipeline
 
-Canonical GitHub docs:
+Typical sequence:
 
-```text
-docs/stonewall-cheatsheet.md
-docs/french-cheatsheet.md
-```
-
-Optional export-oriented PDF flow:
-
-Stonewall:
-
-```bash
-python3 chess_tools/tag_games.py
-python3 chess_tools/generate_pdf.py
-```
-
-French:
-
-```bash
-python3 chess_tools/tag_french.py
-python3 chess_tools/generate_french_pdf.py
-```
+1. pull games from a public chess.com speedrun account
+2. import them into Lichess studies
+3. annotate the studies
+4. sync the study URLs into a local PGN corpus
+5. search that corpus or generate study outputs from it

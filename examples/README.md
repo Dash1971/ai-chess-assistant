@@ -7,4 +7,6 @@ It contains:
 - a sample source list
 - example queries
 
-The full operating corpus and generated outputs live in the private companion repo.
+Use it to understand the input shape and command flow.
+
+For full-scale use, point the tools at your own corpus and study list.

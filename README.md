@@ -1,18 +1,29 @@
 # OpenClaw AI Chess Coach
 
-OpenClaw AI Chess Coach is a generic OpenClaw-based chess analysis and training stack built around reusable chess skills, reusable chess tooling, and lightweight example data.
+OpenClaw AI Chess Coach is a generic OpenClaw-based chess study stack for building your own local chess coach around reusable skills, reusable tooling, and a small example layer.
 
 It is designed to support workflows such as:
-- opening study sync and search
-- game analysis against a local corpus
-- opponent scouting
-- opening-study extraction from public accounts
-- concept and cheat-sheet generation
-- speedrun account PGN extraction from chess.com
+- syncing annotated Lichess studies into a local PGN corpus
+- searching a local chess database by structure, motif, or sequence
+- opponent scouting from public account histories
+- extracting opening-study material from public accounts
+- generating concept documents and other study outputs from tagged games
+- pulling speedrun games from chess.com for later study import
 
-This public repo is the **generic, publishable** layer.
+---
 
-It does **not** contain the full working corpus or the full set of generated outputs used in day-to-day operation. Those live in a separate private companion repo.
+## How the source-material pipeline works
+
+A typical workflow looks like this:
+
+1. pull games from a public source such as a chess.com speedrun account
+2. import those games into one or more Lichess studies
+3. annotate and organize the games in Lichess
+4. collect the study URLs into a source list
+5. sync those studies into a local PGN database
+6. run search, coaching, scouting, and document-generation workflows against that local corpus
+
+You do not have to use this exact pipeline, but it is the main workflow this repo demonstrates.
 
 ---
 
@@ -34,64 +45,26 @@ The `chess_tools/` layer contains the reusable code behind the workflows, includ
 - tagging helpers
 - diagram helpers
 - PGN comment sanitation helpers
-- taggers and export-oriented generators; the canonical cheat sheets now live in `docs/`
+- document/export generators
 
 ### Docs
-The `docs/` tree is the canonical documentation layer.
+The `docs/` tree explains the architecture, setup, workflows, and search system.
 
-The long-term direction is **markdown-first documentation** that can be read and reviewed directly in GitHub.
-
-That includes the opening cheat sheets:
-
-- `docs/stonewall-cheatsheet.md`
-- `docs/french-cheatsheet.md`
-
-### Minimal example data
-The `examples/` tree holds a small public-safe sample layer only:
+### Examples
+The `examples/` tree is intentionally small:
 - sample PGN
 - sample source list
-- example queries
+- example commands and prompts
 
-This repo is intentionally not bundled with the full operating corpus.
+The example layer is there to show structure and usage, not to act as a full working corpus.
 
 ---
 
 ## Example opening families
 
-The repo uses the following as **example repertoires / example study families**:
-- Stonewall
-- French
-- Habits
+Stonewall, French, and Habits appear here as example study families built from public speedrun material.
 
-These are included as examples of how the system can be organized and studied.
-
-They should not be read as hidden assumptions that the code only works for one private setup.
-
----
-
-## What this repo does not include
-
-This public repo intentionally does not include:
-- the full working `games.pgn` corpus
-- the full operational source list set
-- generated PDFs as canonical source documents
-- one-off historical reconstruction scripts
-- historical archive clutter and intermediate import artifacts
-
-Those belong either in the private data companion repo or in the retire/drop bucket.
-
----
-
-## Private companion repo
-
-The private companion repo is:
-- `chess-data-private`
-
-That repo is intended to hold:
-- full corpus data
-- full source lists
-- generated PDFs and other working outputs
-- larger operating data that should stay private while still being synced for recovery/review
+They are examples of how to organize and query a repertoire corpus, not hardcoded requirements for using the tooling.
 
 ---
 
@@ -108,37 +81,24 @@ examples/
 ```
 
 ### `docs/`
-Browser-readable canonical docs.
-
-This includes the canonical markdown cheat sheets for Stonewall and French.
+Browser-readable documentation.
 
 ### `skills/`
-Public chess skills.
+Reusable chess workflows.
 
 ### `chess_tools/`
-Canonical reusable chess tooling.
+Reusable implementation code.
 
 ### `examples/`
-Minimal public sample layer.
+Minimal sample inputs and example commands.
 
 ---
 
-## Documentation rule
+## Intended use
 
-Retained generic utilities should be documented, not silently copied in.
+This repo is meant to help a public user understand and rebuild the system shape:
+- how source games are gathered
+- how annotated studies become a local corpus
+- how that corpus is queried and turned into reports or study documents
 
-That includes small utilities such as:
-- `sanitize_pgn_comments.py`
-
-as well as the larger headline tools.
-
----
-
-## Current direction
-
-The long-term direction for this project is:
-- generic public repo for code, skills, docs, and minimal examples
-- private companion repo for the real working data layer
-- markdown-first docs, PDF-second
-
-This keeps the project readable in GitHub while still preserving the full operating data separately.
+For full-scale use, point the tools at your own study list and your own local PGN corpus.

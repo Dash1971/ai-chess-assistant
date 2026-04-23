@@ -27,16 +27,23 @@ The `chess_tools/` directory holds the reusable implementation code behind those
 
 The `docs/` directory is the canonical browser-readable documentation layer.
 
-The long-term direction is markdown-first documentation that can be reviewed directly in GitHub.
+It explains the workflow shape, tool boundaries, and search model.
 
 ## 4. Examples
 
 The `examples/` directory is intentionally minimal.
 
-It provides a small sample layer for understanding the workflows without bundling the full operating corpus.
+It provides a small sample layer for understanding the workflows without bundling a full working corpus.
 
-## Private companion relationship
+## Typical data pipeline
 
-This public repo is the generic, publishable layer.
+The main study pipeline demonstrated by this project is:
 
-The private companion repo `chess-data-private` holds the full working corpus, full source lists, and private generated outputs used in day-to-day operation.
+1. gather games from a public source such as chess.com
+2. import them into Lichess studies
+3. annotate and organize the games inside those studies
+4. collect study URLs into a source list
+5. sync that source list into a local PGN database
+6. run search, coaching, scouting, and document-generation workflows against the local corpus
+
+The repo is generic. You can substitute your own study list, PGN corpus, or import path.
