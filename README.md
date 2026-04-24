@@ -1,10 +1,10 @@
 # AI Chess Assistant
 
-AI Chess Assistant is a generic OpenClaw-based chess study stack for building your own local chess assistant around reusable skills, reusable tooling, and a small example layer.
+AI Chess Assistant is an OpenClaw-powered chess study toolkit for building a local chess workflow around reusable skills, reusable tooling, and a small public example layer.
 
-It is designed to support workflows such as:
+It is designed for workflows such as:
 - syncing annotated Lichess studies into a local PGN corpus
-- searching a local chess database by structure, motif, or sequence
+- searching a chess database by structure, motif, or sequence
 - opponent scouting from public account histories
 - extracting opening-study material from public accounts
 - generating concept documents and other study outputs from tagged games
@@ -45,7 +45,7 @@ python3 chess_tools/tag_opening.py <opening> --db <games.pgn> --output <output-d
 python3 chess_tools/generate_opening_guide.py <opening> --input <output-dir>/<opening>.json --output <output-dir>/<opening>-cheatsheet.pdf
 ```
 
-The current configured openings are `stonewall` and `french`, but the architecture is now set up to extend beyond those opening families.
+The current configured openings are `stonewall` and `french`, but the layout is meant to extend beyond those opening families.
 
 ---
 
@@ -79,6 +79,20 @@ The `examples/` tree is intentionally small:
 - example commands and prompts
 
 The example layer is there to show structure and usage, not to act as a full working corpus.
+
+---
+
+## What belongs in this repo
+
+This public repo is for:
+- reusable chess code
+- reusable skill/docs surfaces
+- small public-safe examples
+
+Keep these outside the repo, or in your own private companion data location:
+- real working corpora
+- source manifests you actively maintain
+- generated guides/PDFs and other operating outputs
 
 ---
 
@@ -123,4 +137,4 @@ This repo is meant to help a public user understand and rebuild the system shape
 - how annotated studies become a local corpus
 - how that corpus is queried and turned into reports or study documents
 
-For full-scale use, point the tools at your own study list and your own local PGN corpus.
+For serious use, point the tools at your own study list and your own local PGN corpus, and keep your real data/outputs outside this public code repo.

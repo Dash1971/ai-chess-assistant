@@ -61,4 +61,4 @@ A practical operating sequence is:
 6. use the openings-coach workflow to critique your own games against the standard set by that cheat sheet
 7. scout opponents in advance to estimate how well your preparation is likely to work
 
-This repo ships the generic tooling and a minimal example layer.
+This repo ships the public code/docs/examples layer. Keep your real corpus, source manifests, and generated outputs in your own data location.
