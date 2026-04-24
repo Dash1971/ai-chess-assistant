@@ -24,13 +24,13 @@ Extract instructive wins from any chess.com player, annotated with Aman Hambleto
 
 ### Step 1: Download Games
 
-Extract username from the link. Check if games already exist:
+Extract username from the link. Check if games already exist in your working directory:
 - `opponents/<username>/games.pgn` (from prior scout)
 - `<username>/games.pgn` (from prior profile analysis)
 
 If not found, download fresh:
 ```bash
-python3 skills/chess-opponent-scout/scripts/analyze_player.py <username> opponents/<username>
+python3 skills/chess-opponent-scout/scripts/analyze_player.py <username> ./opponents/<username>
 ```
 
 ### Step 2: Identify Qualifying Games
@@ -68,7 +68,7 @@ python3 skills/chess-opponent-scout/scripts/analyze_player.py <username> opponen
 
 Run the annotation script:
 ```bash
-python3 skills/chess-opening-study/scripts/build_study.py <username> <opening> [--max N] [--min-moves M]
+python3 skills/chess-opening-study/scripts/build_study.py <username> <opening> [--max N] [--min-moves M] [--pgn-path PATH] [--output PATH]
 ```
 
 Arguments:
@@ -76,6 +76,8 @@ Arguments:
 - `opening`: `french` or `stonewall`
 - `--max N`: maximum games to include (default: 64)
 - `--min-moves M`: minimum game length (default: 20)
+- `--pgn-path PATH`: explicit source PGN path if auto-discovery is not enough
+- `--output PATH`: explicit output PGN path (otherwise writes `./<username>-<opening>-study.pgn`)
 
 **French annotations** (from Aman's sterkurstrakur framework):
 
@@ -137,7 +139,9 @@ After annotation, review each game:
 
 ### Step 6: Output
 
-Write PGN to: `opponents/<username>/<username>-<opening>-study.pgn`
+Write PGN to:
+- explicit `--output PATH`, or
+- default `./<username>-<opening>-study.pgn`
 
 PGN format:
 - Clean headers (Event, Site, Date, White, Black, Result, WhiteElo, BlackElo, ECO, Link)

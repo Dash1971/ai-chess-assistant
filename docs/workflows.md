@@ -40,13 +40,13 @@ Opening-specific chess knowledge is now being pushed into dedicated modules rath
 Example usage:
 
 ```bash
-python3 chess_tools/tag_opening.py stonewall --db <games.pgn> --output /tmp/stonewall.json
-python3 chess_tools/generate_opening_guide.py stonewall --input /tmp/stonewall.json --output stonewall-cheatsheet.pdf
+python3 chess_tools/tag_opening.py stonewall --db <games.pgn> --output <output-dir>/stonewall.json
+python3 chess_tools/generate_opening_guide.py stonewall --input <output-dir>/stonewall.json --output <output-dir>/stonewall-cheatsheet.pdf
 ```
 
 ```bash
-python3 chess_tools/tag_opening.py french --db <games.pgn> --output /tmp/french.json
-python3 chess_tools/generate_opening_guide.py french --input /tmp/french.json --output french-cheatsheet.pdf
+python3 chess_tools/tag_opening.py french --db <games.pgn> --output <output-dir>/french.json
+python3 chess_tools/generate_opening_guide.py french --input <output-dir>/french.json --output <output-dir>/french-cheatsheet.pdf
 ```
 
 ## Typical study flow

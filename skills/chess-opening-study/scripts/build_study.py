@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
-"""
-Chess Opening Study Builder
-Extract and annotate French Defense or Stonewall games from any chess.com player.
-Outputs clean PGN for lichess study import.
+"""Chess Opening Study Builder.
+
+Extract and annotate French Defense or Stonewall games from any chess.com
+player, then write clean PGN for Lichess study import.
 
 Usage:
     python3 build_study.py <username> <opening> [--max N] [--min-moves M] [--pgn-path PATH]
+    python3 build_study.py <username> <opening> --pgn-path /path/to/games.pgn --output out/study.pgn
 
 Arguments:
-    username    chess.com username
-    opening     'french' or 'stonewall'
-    --max N     max games to include (default: 64)
-    --min-moves minimum game length in moves (default: 20)
-    --pgn-path  path to PGN file (default: opponents/<username>/games.pgn or <username>/games.pgn)
-
-Output: opponents/<username>/<username>-<opening>-study.pgn
+    username      chess.com username
+    opening       'french' or 'stonewall'
+    --max N       max games to include (default: 64)
+    --min-moves   minimum game length in moves (default: 20)
+    --pgn-path    path to PGN file (default: ./opponents/<username>/games.pgn or ./<username>/games.pgn)
+    --output      exact output PGN path (default: ./<username>-<opening>-study.pgn)
+    --output-dir  optional directory for the default output filename
 """
 
 import re
@@ -24,8 +25,6 @@ import json
 import argparse
 from collections import Counter
 from pathlib import Path
-
-REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -716,6 +715,8 @@ def main():
     parser.add_argument('--max', type=int, default=64, help='Max games')
     parser.add_argument('--min-moves', type=int, default=20, help='Min game length')
     parser.add_argument('--pgn-path', help='Path to PGN file')
+    parser.add_argument('--output', help='Exact output PGN path (default: ./<username>-<opening>-study.pgn)')
+    parser.add_argument('--output-dir', help='Optional output directory for the default filename')
     args = parser.parse_args()
 
     username = args.username.lower()
@@ -725,8 +726,8 @@ def main():
     pgn_path = args.pgn_path
     if not pgn_path:
         candidates = [
-            str(REPO_ROOT / 'opponents' / username / 'games.pgn'),
-            str(REPO_ROOT / username / 'games.pgn'),
+            str(Path('opponents') / username / 'games.pgn'),
+            str(Path(username) / 'games.pgn'),
         ]
         for c in candidates:
             if os.path.exists(c):
@@ -734,7 +735,8 @@ def main():
                 break
     if not pgn_path or not os.path.exists(pgn_path):
         print(f"ERROR: No PGN found for {username}. Download first with:")
-        print(f"  python3 skills/chess-opponent-scout/scripts/analyze_player.py {username} opponents/{username}")
+        print(f"  python3 skills/chess-opponent-scout/scripts/analyze_player.py {username} ./opponents/{username}")
+        print("Or pass --pgn-path /path/to/games.pgn explicitly.")
         sys.exit(1)
 
     print(f"Reading {pgn_path}...")
@@ -850,9 +852,14 @@ def main():
         print(f"[{i+1:2d}] {chapter_title[:60]:60s} | {game['total_moves']:3d}m | {ann_count} ann")
 
     # Write output
-    out_dir = REPO_ROOT / 'opponents' / username
-    out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / f'{username}-{opening}-study.pgn'
+    if args.output:
+        out_path = Path(args.output)
+    elif args.output_dir:
+        out_path = Path(args.output_dir) / f'{username}-{opening}-study.pgn'
+    else:
+        out_path = Path(f'{username}-{opening}-study.pgn')
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(out_path, 'w') as f:
         f.write('\n\n'.join(study_games) + '\n')

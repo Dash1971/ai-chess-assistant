@@ -41,8 +41,8 @@ A practical end-to-end workflow looks like this:
 The generic opening-guide interface in this repo is:
 
 ```bash
-python3 chess_tools/tag_opening.py <opening> --db <games.pgn> --output /tmp/<opening>.json
-python3 chess_tools/generate_opening_guide.py <opening> --input /tmp/<opening>.json --output <opening>-cheatsheet.pdf
+python3 chess_tools/tag_opening.py <opening> --db <games.pgn> --output <output-dir>/<opening>.json
+python3 chess_tools/generate_opening_guide.py <opening> --input <output-dir>/<opening>.json --output <output-dir>/<opening>-cheatsheet.pdf
 ```
 
 The current configured openings are `stonewall` and `french`, but the architecture is now set up to extend beyond those opening families.
