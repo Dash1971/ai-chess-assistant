@@ -25,10 +25,12 @@ Core rule:
 ### Supporting search utilities
 - `chess_tools/parse_pgn.py`
 - `chess_tools/search.py`
-- `chess_tools/run_search.py`
-- `chess_tools/run_query_test.py`
-- `chess_tools/search_queen_battery.py`
 - `examples/search/` — preserved query examples, prompt examples, and JSON fixtures
+
+### Demo / exploration helpers
+- `chess_tools/run_search.py` — canned structured-query demo runner
+- `chess_tools/run_query_test.py` — quick JSON-query runner for bundled example queries
+- `chess_tools/search_queen_battery.py` — narrow motif-specific demo search
 
 ## Corpus model
 

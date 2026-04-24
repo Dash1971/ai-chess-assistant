@@ -9,6 +9,7 @@ Contents include:
 - fuzzy-query and natural-language prompt examples
 - backup-workflow notes
 - motif / relation / attack-shape example prompts
+- demo-oriented helper scripts in `chess_tools/` can use these fixtures (`run_query_test.py`, `run_search.py`, `search_queen_battery.py`)
 
 These files are examples and reference material.
 They are not a private corpus.

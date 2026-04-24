@@ -37,8 +37,11 @@ The public repo does not ship the full working corpus. It ships the code plus a 
 ### Supporting tools
 - `chess_tools/parse_pgn.py`
 - `chess_tools/search.py`
+
+### Demo helpers
 - `chess_tools/run_search.py`
 - `chess_tools/run_query_test.py`
+- `chess_tools/search_queen_battery.py`
 
 ## What the system can do
 
