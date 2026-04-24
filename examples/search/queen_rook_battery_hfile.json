@@ -1,0 +1,36 @@
+{
+  "limit": 10,
+  "context_window": 3,
+  "sequence": [
+    {
+      "move_by": "any",
+      "predicates": [
+        {
+          "type": "rook_lifted",
+          "phase": "before",
+          "color": "any",
+          "min_advance": 2
+        }
+      ]
+    },
+    {
+      "move_by": "any",
+      "within_plies": 10,
+      "predicates": [
+        {
+          "type": "battery",
+          "phase": "after",
+          "color": "any",
+          "back_piece": "Q",
+          "front_piece": "R"
+        }
+      ]
+    },
+    {
+      "move": ".*#",
+      "move_mode": "regex",
+      "move_by": "any",
+      "within_plies": 8
+    }
+  ]
+}

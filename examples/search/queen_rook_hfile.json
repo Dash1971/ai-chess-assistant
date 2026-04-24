@@ -1,0 +1,32 @@
+{
+  "limit": 10,
+  "context_window": 3,
+  "sequence": [
+    {
+      "move": "R.*h[35]",
+      "move_mode": "regex",
+      "move_by": "any",
+      "predicates": [
+        {
+          "type": "piece_on_square",
+          "phase": "after",
+          "color": "any",
+          "piece": "Q",
+          "square": "h1"
+        }
+      ]
+    },
+    {
+      "move": "Q.*h[14578]",
+      "move_mode": "regex",
+      "move_by": "any",
+      "within_plies": 4
+    },
+    {
+      "move": ".*#",
+      "move_mode": "regex",
+      "move_by": "any",
+      "within_plies": 6
+    }
+  ]
+}

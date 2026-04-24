@@ -1,0 +1,43 @@
+{
+  "player": "wonestall",
+  "color": "black",
+  "limit": 10,
+  "context_window": 2,
+  "sequence": [
+    {
+      "move": "Qc7",
+      "move_by": "self",
+      "required": true,
+      "predicates": [
+        {"type": "piece_on_square", "phase": "before", "color": "opponent", "piece": "N", "square": "e5"}
+      ]
+    },
+    {
+      "label": "queen-bishop battery right after queen move",
+      "move_by": "self",
+      "within_plies": 0,
+      "required": false,
+      "weight": 2.5,
+      "predicates": [
+        {"type": "battery", "phase": "after", "color": "self", "back_piece": "Q", "front_piece": "B"}
+      ]
+    },
+    {
+      "label": "queen adds defense to bishop on d6",
+      "move": "Qc7",
+      "move_by": "self",
+      "required": false,
+      "weight": 3.0,
+      "predicates": [
+        {"type": "move_adds_defender_to_piece", "color": "self", "defender_color": "self", "defender_piece": "Q", "piece": "B", "square": "d6"}
+      ]
+    },
+    {
+      "move": "N.?d7",
+      "move_mode": "regex",
+      "move_by": "self",
+      "within_plies": 4,
+      "required": true
+    }
+  ]
+}

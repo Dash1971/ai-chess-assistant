@@ -1,0 +1,20 @@
+{
+  "player": "wonestall",
+  "color": "black",
+  "limit": 10,
+  "context_window": 2,
+  "sequence": [
+    {
+      "move": "Qc7",
+      "move_by": "self",
+      "predicates": [
+        {"type": "piece_on_square", "phase": "before", "color": "opponent", "piece": "N", "square": "e5"}
+      ]
+    },
+    {
+      "move": "Nd7",
+      "move_by": "self",
+      "within_plies": 6
+    }
+  ]
+}

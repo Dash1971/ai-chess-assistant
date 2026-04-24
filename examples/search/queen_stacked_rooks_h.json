@@ -1,0 +1,23 @@
+{
+  "limit": 10,
+  "context_window": 3,
+  "sequence": [
+    {
+      "move": "Rh[345]",
+      "move_mode": "regex",
+      "move_by": "any"
+    },
+    {
+      "move": "Qh[14578]",
+      "move_mode": "regex",
+      "move_by": "any",
+      "within_plies": 4
+    },
+    {
+      "move": ".*#",
+      "move_mode": "regex",
+      "move_by": "any",
+      "within_plies": 6
+    }
+  ]
+}

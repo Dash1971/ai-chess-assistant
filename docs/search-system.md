@@ -28,6 +28,7 @@ Core rule:
 - `chess_tools/run_search.py`
 - `chess_tools/run_query_test.py`
 - `chess_tools/search_queen_battery.py`
+- `examples/search/` — preserved query examples, prompt examples, and JSON fixtures
 
 ## Corpus model
 
