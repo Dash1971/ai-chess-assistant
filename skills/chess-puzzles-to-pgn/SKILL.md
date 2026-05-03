@@ -29,12 +29,28 @@ pip install -r requirements.txt
 When running the image-analysis scripts directly, prefer the venv Python:
 
 ```bash
+.venv/bin/python scripts/automate_book.py --pdf input.pdf --output-dir out/book
+.venv/bin/python scripts/extract_boards.py pages/*.png --output-dir out/crops --manifest out/boards.json
 .venv/bin/python scripts/detect_occupancy.py <crop.jpg>
 .venv/bin/python scripts/check_fens.py <pgn-file>
 .venv/bin/python scripts/build_pgn.py <output.pgn>
 ```
 
 For rasterizing source PDFs, `pdftoppm` is recommended when available.
+
+## Automation now included
+
+The skill now automates the front half of the workflow:
+- PDF rasterization
+- page-by-page board candidate discovery
+- crop export
+- JSON manifest generation for review
+
+What is still manual on purpose:
+- piece identity
+- piece color
+- side-to-move confirmation
+- final FEN authorship
 
 ## Workflow
 
@@ -60,7 +76,27 @@ Make a list before transcribing. Don't transcribe as you go.
 
 ### 2. Crop each diagram
 
-For each diagram, crop a region of the page raster that includes:
+You can now automate the initial crop-discovery step:
+
+```bash
+python scripts/automate_book.py --pdf input.pdf --output-dir out/book --annotate
+```
+
+That creates:
+- `out/book/pages/` — rasterized page images
+- `out/book/crops/` — likely board crops
+- `out/book/manifest.json` — per-crop review manifest
+- `out/book/summary.json` — page/candidate counts
+
+Or, if you already have page images:
+
+```bash
+python scripts/extract_boards.py pages/*.png --output-dir out/crops --manifest out/boards.json --annotate
+```
+
+Then review the candidate crops and keep the ones that actually correspond to diagrams.
+
+For each confirmed diagram, crop a region of the page raster that includes:
 - The full board
 - **Rank labels (1–8) on the left**
 - **File labels (a–h) on the bottom**
@@ -168,7 +204,9 @@ Don't repeat these. They all happened on the first attempt that produced this sk
 
 ## Files in this skill
 
-- `scripts/detect_occupancy.py` — measures ink density per board square, prints an 8×8 grid. The single most important tool here.
+- `scripts/automate_book.py` — orchestration entry point: rasterize PDF, find board candidates, export crops, write manifest.
+- `scripts/extract_boards.py` — scan page images for likely board regions and crop them.
+- `scripts/detect_occupancy.py` — measures ink density per board square, prints an 8×8 grid. The single most important verification tool here.
 - `scripts/check_fens.py` — structural FEN validator (kings, ranks, side-to-move).
 - `scripts/build_pgn.py` — template for assembling the multi-chapter PGN. Adapt the `chapters` list to your book.
 - `references/measurement.md` — how `detect_occupancy.py` works, calibration notes, threshold tuning.

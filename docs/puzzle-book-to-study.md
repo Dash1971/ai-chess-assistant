@@ -51,6 +51,8 @@ The board glyphs are still standard chess pieces; the translation issue is usual
 
 ## Included scripts
 
+- `scripts/automate_book.py` — rasterize a PDF, detect likely boards, export crops, and build a review manifest
+- `scripts/extract_boards.py` — detect likely board regions from existing page images
 - `scripts/detect_occupancy.py` — measure ink density per square on a board crop
 - `scripts/check_fens.py` — validate structural FEN correctness
 - `scripts/build_pgn.py` — template for assembling a Lichess-ready multi-chapter PGN
@@ -73,14 +75,15 @@ Recommended external tool:
 
 ## Basic operating flow
 
-1. Rasterize the workbook PDF at about 250 DPI.
-2. Catalog the diagrams and side-to-move prompts before transcribing.
-3. Crop each diagram with rank/file labels still visible.
-4. Do a visual transcription of pieces and squares.
-5. Run occupancy measurement on the crop and reconcile any disagreements.
-6. Build a full FEN for each diagram.
-7. Validate every FEN.
-8. Assemble a multi-chapter PGN and import it into a Lichess study.
+1. Run `scripts/automate_book.py` on the workbook PDF at about 250 DPI.
+2. Review the generated candidate crops and manifest.
+3. Catalog the diagrams and side-to-move prompts before transcribing.
+4. Confirm or tighten each crop so rank/file labels are still visible.
+5. Do a visual transcription of pieces and squares.
+6. Run occupancy measurement on the crop and reconcile any disagreements.
+7. Build a full FEN for each diagram.
+8. Validate every FEN.
+9. Assemble a multi-chapter PGN and import it into a Lichess study.
 
 ## Lichess output model
 
@@ -97,8 +100,18 @@ See also:
 
 ## Important limitation
 
-This is not a one-click OCR pipeline.
+This is still not a one-click OCR pipeline.
 
-It is a verification-first transcription workflow.
+What is now automated:
+- PDF rasterization
+- likely-board detection
+- initial crop export
+- manifest generation
+
+What remains verification-first:
+- confirming which candidates are real diagrams
+- reading the surrounding puzzle text
+- identifying piece types and colors
+- setting side to move and writing final FENs
 
 That tradeoff is deliberate: for scanned chess books, measured semi-manual transcription is much more reliable than pretending full automation is already solved.
