@@ -170,7 +170,7 @@ For each diagram, build the FEN:
 - White pieces uppercase (`KQRBNP`), black lowercase (`kqrbnp`)
 - Empty square runs as digits 1–8
 - Side-to-move: `w` or `b` based on the book's prompt
-- Castling: `-` (puzzle positions don't have castling rights)
+- Castling: default to `-` unless castling rights are explicitly justified by the source/context or deliberately set as an override after review
 - En passant: `-`
 - Halfmove/fullmove: `0 1`
 
@@ -186,6 +186,17 @@ Run `scripts/check_fens.py <pgn-file>` (or call the validation function on each 
 - Bad side-to-move character
 
 Validation does not prove the FEN matches the diagram — it only proves the FEN is structurally legal. Visual + measurement is what proves correctness.
+
+### 5.5 Castling-rights policy
+
+Do **not** silently hardcode castling rights to `-` just because the position is a puzzle.
+
+Use this rule instead:
+- if castling rights are genuinely unknowable from the source/context, use `-`
+- if the source/context makes castling rights clear, encode them
+- if the board geometry strongly suggests castling should be available and the downstream use case cares about playable fidelity, pause and make an explicit castling-rights decision instead of defaulting blindly
+
+The key rule is: **castling rights must be an explicit decision, not an unexamined default.**
 
 ### 6. Build the PGN
 
