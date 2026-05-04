@@ -15,6 +15,10 @@ The single most important rule: **never finalize a FEN you only looked at. Measu
 
 The second most important rule: **do not hand the user a first draft.** The user should be able to hand over a PDF and receive PGN output without doing your QA for you.
 
+The third most important rule: **raw OCR / model / engine output is never final data.** It may suggest a candidate FEN, but it cannot be shipped until it has been checked square-by-square against the source board image.
+
+For clean multi-diagram pages, board numbering must come from deterministic full-page recrops in reading order, not from any pre-existing manual crop filenames or detector output order.
+
 ## Setup
 
 This skill uses Python plus two packages for image analysis: `numpy` and `Pillow`.
@@ -54,6 +58,11 @@ What is still manual on purpose:
 - side-to-move confirmation
 - final FEN authorship
 - final verification against the source before delivery
+
+What must never happen again:
+- treating detector order as chapter order without explicit reading-order mapping
+- treating model output as authoritative without source-image audit
+- sending an engine-rebuilt PGN before square-by-square verification is complete
 
 ## Workflow
 
@@ -152,6 +161,8 @@ Validation does not prove the FEN matches the diagram — it only proves the FEN
 
 ### 6. Build the PGN
 
+Final delivery PGNs should be clean. Do not inject internal workflow notes such as audit provenance, crop-order fixes, or numbering/debug comments into the chapter body unless the user explicitly asked for them.
+
 Use `scripts/build_pgn.py` as a template. Each chapter needs:
 
 ```
@@ -177,13 +188,18 @@ Use `scripts/build_pgn.py` as a template. Each chapter needs:
 
 3. `[SetUp "1"]` and `[FEN ...]` together tell Lichess this is a puzzle position, not a regular game. Both are required.
 
-4. End the body with `*` (game in progress / no result), since these are puzzles, not finished games.
+4. End the body with `*` (game in progress / no result), since these are puzzles, not finished games. If there is no user-facing annotation to include, use a bare `*` with no comment block.
 
 5. Composite diagrams: split into multiple chapters with sub-IDs like `224a`, `224b`, `236-I`, `236-II`, `236-III`, `236-IV`, `258-I` etc. When extracting these into the `[White]` sidebar label, watch the regex: try `IV` before `I`, `II`, `III`, otherwise `236-IV` becomes `236-I` (this bit me).
 
 ### 7. Mandatory verification pass
 
 Before delivery, do a full verification pass over every chapter.
+
+For clear PDFs, generate labeled audit sheets first. Every board should have:
+- a stable source crop in reading order
+- a labeled square contact sheet (`a8` through `h1`)
+- a final audit where each occupied square in the FEN is checked against that sheet
 
 Minimum standard:
 1. Re-open the original board crop or page crop for each position.
@@ -234,6 +250,7 @@ Don't repeat these. They all happened on the first attempt that produced this sk
 
 - `scripts/automate_book.py` — orchestration entry point: rasterize PDF, find board candidates, export crops, write manifest.
 - `scripts/extract_boards.py` — scan page images for likely board regions and crop them.
+- `scripts/recrop_page_grid.py` — deterministically recrop clean 2x3 puzzle pages in reading order so numbering cannot drift.
 - `scripts/detect_occupancy.py` — measures ink density per board square, prints an 8×8 grid. The single most important verification tool here.
 - `scripts/check_fens.py` — structural FEN validator (kings, ranks, side-to-move).
 - `scripts/build_pgn.py` — template for assembling the multi-chapter PGN. Adapt the `chapters` list to your book.

@@ -2,13 +2,15 @@
 """
 Automate the front half of the puzzle-book workflow:
 - rasterize a PDF into page images (optional)
-- detect likely board regions on those pages
+- either detect likely board regions OR deterministically recrop clean 2x3 pages
 - crop them into a review directory
 - build a JSON manifest for the remaining human verification steps
 
 USAGE:
     python automate_book.py --pdf input.pdf --output-dir out/book
     python automate_book.py --pages-dir out/book/pages --output-dir out/book
+    python automate_book.py --pages-dir out/book/pages --output-dir out/book \
+        --grid-page "page-2.png:1-7,1-10,1-8,1-11,1-9,1-12"
 """
 
 import argparse
@@ -17,7 +19,10 @@ import shutil
 import subprocess
 from pathlib import Path
 
+from PIL import Image
+
 from extract_boards import crop_candidates, find_board_candidates
+from recrop_page_grid import find_boxes
 
 
 IMAGE_EXTS = {".png", ".jpg", ".jpeg"}
@@ -53,6 +58,39 @@ def build_summary(manifest_rows):
     }
 
 
+def grid_recrop_page(page_image, labels, crops_dir):
+    page_image = Path(page_image)
+    labels = [x.strip() for x in labels.split(",") if x.strip()]
+    if len(labels) != 6:
+        raise SystemExit(f"Grid page {page_image.name} needs exactly 6 labels, got {len(labels)}")
+
+    boxes = find_boxes(page_image)
+    img = Image.open(page_image).convert("RGB")
+    rows = []
+    for (x, y, w, h), label in zip(boxes, labels):
+        left = max(0, x - 70)
+        top = max(0, y - 30)
+        right = min(img.width, x + w + 25)
+        bottom = min(img.height, y + h + 80)
+        crop = img.crop((left, top, right, bottom))
+        out_path = crops_dir / f"{label}.png"
+        crop.save(out_path)
+        rows.append({
+            "source_page": str(page_image),
+            "crop_path": str(out_path),
+            "candidate_index": len(rows) + 1,
+            "board_bbox": {"top": y, "bottom": y + h - 1, "left": x, "right": x + w - 1},
+            "crop_bbox": {"top": top, "bottom": bottom - 1, "left": left, "right": right - 1},
+            "border_score": None,
+            "inner_density": None,
+            "status": "needs_review",
+            "diagram_id": label,
+            "side_to_move": "",
+            "comment": "deterministic_grid_recrop",
+        })
+    return rows
+
+
 def main():
     parser = argparse.ArgumentParser(description="Rasterize a puzzle book and extract likely chess-board crops.")
     group = parser.add_mutually_exclusive_group(required=True)
@@ -64,6 +102,12 @@ def main():
     parser.add_argument("--min-size", type=int, default=110, help="Minimum candidate board size on the detection image.")
     parser.add_argument("--max-dim", type=int, default=1600, help="Downsample long edge to this many pixels for detection.")
     parser.add_argument("--annotate", action="store_true", help="Save page images with candidate boxes drawn.")
+    parser.add_argument(
+        "--grid-page",
+        action="append",
+        default=[],
+        help="Deterministic 2x3 recrop override: 'page-filename.png:label1,label2,label3,label4,label5,label6' in reading order.",
+    )
     args = parser.parse_args()
 
     output_dir = args.output_dir
@@ -73,6 +117,7 @@ def main():
     summary_path = output_dir / "summary.json"
 
     output_dir.mkdir(parents=True, exist_ok=True)
+    crops_dir.mkdir(parents=True, exist_ok=True)
 
     if args.pdf:
         if not args.pdf.exists():
@@ -86,8 +131,21 @@ def main():
     if not page_images:
         raise SystemExit(f"No page images found in {pages_dir}")
 
+    grid_map = {}
+    for item in args.grid_page:
+        if ":" not in item:
+            raise SystemExit(f"Bad --grid-page entry: {item!r}")
+        name, labels = item.split(":", 1)
+        grid_map[name.strip()] = labels.strip()
+
     all_rows = []
     for page_image in page_images:
+        if page_image.name in grid_map:
+            rows = grid_recrop_page(page_image, grid_map[page_image.name], crops_dir)
+            all_rows.extend(rows)
+            print(f"{page_image.name}: {len(rows)} deterministic grid crop(s)")
+            continue
+
         candidates = find_board_candidates(page_image, min_size=args.min_size, max_dim=args.max_dim)
         rows, annotated = crop_candidates(page_image, candidates, crops_dir, annotate=args.annotate)
         all_rows.extend(rows)

@@ -11,7 +11,7 @@ Each chapter needs:
 - side_human: "White to move" / "Black to move" / "Reference position" /
               "(Stalemate)" — what shows in the Lichess sidebar after the
               diagram identifier.
-- comment: prose annotation shown in the chapter body.
+- comment: optional prose annotation shown in the chapter body.
 
 The output PGN can be pasted into Lichess: Study -> New chapter -> PGN tab.
 Each [Event] becomes a chapter; [White] becomes the sidebar label.
@@ -79,7 +79,7 @@ def short_id_from_title(title):
     return ""
 
 
-def make_chapter(idx, title, fen, side_human, comment):
+def make_chapter(idx, title, fen, side_human, comment=""):
     """Render one chapter as a PGN-formatted string.
 
     Lichess uses the [White] header as the sidebar label, so we put a short
@@ -103,7 +103,7 @@ def make_chapter(idx, title, fen, side_human, comment):
         f'[FEN "{fen}"]',
         f'[Annotator "{ANNOTATOR}"]',
     ]
-    body = "{ " + comment + " } *"
+    body = f"{{ {comment} }} *" if comment else "*"
     return "\n".join(headers) + "\n\n" + body + "\n"
 
 
