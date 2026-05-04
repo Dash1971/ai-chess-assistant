@@ -5,13 +5,15 @@ description: Transcribe chess puzzles from a scanned PDF book into a multi-chapt
 
 # Chess puzzles to PGN
 
-Transcribe chess diagrams from a scanned book PDF into a Lichess-compatible PGN. The output is one PGN file with each diagram as a chapter; the user pastes or uploads it into the Lichess study importer.
+Transcribe chess diagrams from a scanned book PDF into a Lichess-compatible PGN. The default deliverable is a verified PGN ready to import into Lichess with no user cleanup. If the chapter count would exceed what comfortably fits in one Lichess study, split it into multiple PGNs automatically.
 
 ## Why this skill exists
 
 Eyeballing piece positions on a 1998-era grayscale scan does not work. Pieces near a file boundary (e.g. is the rook on g4 or h4?) are systematically misread, and a single wrong square breaks the whole puzzle. This skill enforces a workflow that catches those errors before the file ships.
 
 The single most important rule: **never finalize a FEN you only looked at. Measure it.**
+
+The second most important rule: **do not hand the user a first draft.** The user should be able to hand over a PDF and receive PGN output without doing your QA for you.
 
 ## Setup
 
@@ -51,6 +53,7 @@ What is still manual on purpose:
 - piece color
 - side-to-move confirmation
 - final FEN authorship
+- final verification against the source before delivery
 
 ## Workflow
 
@@ -178,11 +181,34 @@ Use `scripts/build_pgn.py` as a template. Each chapter needs:
 
 5. Composite diagrams: split into multiple chapters with sub-IDs like `224a`, `224b`, `236-I`, `236-II`, `236-III`, `236-IV`, `258-I` etc. When extracting these into the `[White]` sidebar label, watch the regex: try `IV` before `I`, `II`, `III`, otherwise `236-IV` becomes `236-I` (this bit me).
 
-### 7. Deliver
+### 7. Mandatory verification pass
 
-Save the final PGN to the outputs directory. Tell the user how to import it: in Lichess, create a study, then "New chapter" → "PGN" tab → paste the file (or upload).
+Before delivery, do a full verification pass over every chapter.
 
-Mention any caveats: the Lichess study creates 60 chapters from one paste; the user should import as a study, not as a single game.
+Minimum standard:
+1. Re-open the original board crop or page crop for each position.
+2. Re-check every occupied square against the FEN, not just the ones that felt uncertain the first time.
+3. Re-check side to move against the printed prompt.
+4. Re-run `scripts/check_fens.py` on the final PGN after all corrections.
+5. If the source spans multiple pages, verify the assembled combined PGN, not just per-page fragments.
+
+Preferred workflow:
+- First pass: transcription + measurement.
+- Second pass: independent visual audit against the source image.
+- Final pass: structural validation of the exact delivered PGN file.
+
+Do not send a "first-pass" PGN unless the user explicitly asked for an unfinished draft.
+Do not ask the user to spot-check your work unless you are genuinely blocked by an unreadable diagram.
+
+### 8. Deliver
+
+Save the final PGN to the outputs directory. If the chat/channel supports file delivery, send the actual PGN file(s) to the user as attachments; do **not** stop at reporting machine-local paths. Only fall back to plain path reporting when attachment delivery is unavailable.
+
+Tell the user how to import it: in Lichess, create a study, then "New chapter" → "PGN" tab → paste the file (or upload).
+
+If the total chapter count is large enough to be awkward for a single Lichess study, split automatically into multiple PGNs and label the ranges clearly (for example `001-064`, `065-128`, etc.).
+
+Mention any caveats: the Lichess study creates many chapters from one paste; the user should import as a study, not as a single game.
 
 ## Common failure modes
 
@@ -202,6 +228,8 @@ Don't repeat these. They all happened on the first attempt that produced this sk
 
 **Forgetting to crop with labels.** A crop without rank/file labels at the edges is useless for verification. Re-crop with more margin.
 
+**Stopping after structural validation.** A FEN can be legal and still be wrong. `check_fens.py` catches impossible structures, not transcription mistakes. Always do the separate source-image verification pass.
+
 ## Files in this skill
 
 - `scripts/automate_book.py` — orchestration entry point: rasterize PDF, find board candidates, export crops, write manifest.
@@ -212,3 +240,13 @@ Don't repeat these. They all happened on the first attempt that produced this sk
 - `references/measurement.md` — how `detect_occupancy.py` works, calibration notes, threshold tuning.
 - `references/russian_chess_notation.md` — Cyrillic piece letters, common phrases, glossary.
 - `references/lichess_pgn_format.md` — the exact PGN headers Lichess wants and why.
+
+## Default behavior expectations
+
+When the user gives you a puzzle PDF and asks for PGN / a Lichess study import file:
+- do the full extraction workflow yourself
+- verify before sending
+- split into multiple PGNs automatically if needed for study size
+- avoid asking the user process questions unless the source is genuinely unreadable or corrupted
+- deliver the finished PGN file(s) to the user when the channel supports attachments, not just local path(s)
+- return the finished file path(s) too when useful, but never instead of the actual file if attachment delivery is available
