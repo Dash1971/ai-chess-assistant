@@ -60,6 +60,7 @@ The current configured openings are `stonewall` and `french`, but the layout is 
 - `chess-db-sync` — sync study-based source material into the local database layer
 - `chess-speedrun-pgn-extractor` — fetch and chunk chess.com speedrun account games for later study ingestion
 - `chess-puzzles-to-pgn` — turn scanned chess puzzle books into multi-chapter PGN for Lichess study import
+- `chess-improvement-analyzer` — answer chess-improvement questions from published research in plain language
 
 ### Chess tools
 The `chess_tools/` layer contains the reusable code behind the workflows, including:
@@ -101,10 +102,10 @@ Keep these outside the repo, or in your own private companion data location:
 
 ## External research credit
 
-The opponent-scout improvement-trajectory layer in this repo is informed by public Lichess analysis from:
+The opponent-scout improvement-trajectory layer in this repo, and the research-facing `chess-improvement-analyzer` skill, are informed by public Lichess analysis from:
 - <https://github.com/jcw024/lichess_database_ETL>
 
-That project analyzed large-scale Lichess rating progress and helped anchor the scout's improver-tier / percentile framing. The implementation here is an approximation layer built on the published findings, not a verbatim reproduction of the original dataset or raw percentile tables.
+That project analyzed large-scale Lichess rating progress and helped anchor the scout's improver-tier / percentile framing plus the plain-language improvement guidance in this repo. The implementation here is an approximation layer built on the published findings, not a verbatim reproduction of the original dataset or raw percentile tables.
 
 ---
 
