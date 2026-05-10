@@ -24,16 +24,19 @@ Generate a scouting report for a chess account from public games.
 1. Extract username and detect platform from the link.
 2. Run `python3 scripts/analyze_player.py <username> <workspace>/scouting/<username> --platform <chesscom|lichess>`.
    - For lichess: automatically excludes "From Position" variant games — only standard games included.
-3. Read the generated `analysis.json` and supporting files.
-4. Generate a scouting report focused on:
+3. Build the PDF dossier with `python3 scripts/build_pdf.py <workspace>/scouting/<username>/analysis.json`.
+4. Read the generated `analysis.json` and supporting files.
+5. Generate a scouting report focused on:
    - repertoire
    - time-control performance
+   - improvement trajectory over time
    - style and game length patterns
    - strengths
    - vulnerabilities
    - practical preparation advice
 5. If the user explicitly asks for a comparison against another account, analyze both accounts and compare them neutrally. Do not assume any default baseline account.
-6. Deliver the report in the active chat and log the work in `memory/YYYY-MM-DD.md` if it is significant.
+6. Deliver a tight chat summary in the active chat, plus the PDF path/file.
+7. Log the work in `memory/YYYY-MM-DD.md` if it is significant.
 
 ## Lichess-Specific Notes
 
@@ -50,10 +53,27 @@ Generate a scouting report for a chess account from public games.
 2. white repertoire
 3. black repertoire
 4. format/time-control profile
-5. style profile
-6. strengths
-7. vulnerabilities
-8. practical preparation plan
+5. improvement trajectory
+6. style profile
+7. strengths
+8. vulnerabilities
+9. practical preparation plan
+
+### Improvement trajectory
+- Read `analysis.json -> improvement_profile`.
+- Report:
+  - a separate breakdown for **bullet, blitz, rapid, and classical** whenever data exists
+  - observed rating change over the sampled months for each available pool
+  - whether the player looks like a plateau player, average improver, strong improver, or outlier improver in each pool
+  - the approximate improver percentile band from the embedded lichess-blitz research model
+  - projected time to gain 100 rating points at both:
+    - the study's typical pace for that starting strength
+    - the player's own recent pace, if that pace is positive
+  - a short overall synthesis across time controls
+- Be explicit about confidence:
+  - **direct** when the sample is lichess blitz
+  - **proxy** when using chess.com or non-blitz time controls
+- Do not present the percentile as an exact scientific measurement. Phrase it as an estimate grounded in the referenced research.
 
 ### Optional comparison section
 Include only when the user explicitly asks for account-vs-account comparison.
@@ -75,3 +95,8 @@ Comparison ideas:
 ## Output rule
 
 Keep the workflow generic and username-driven. The skill should work the same way for any chess.com or lichess account, including Dash's own accounts, without storing a special self-profile reference file.
+
+Default deliverables:
+- `analysis.json`
+- `*-scouting-report.pdf`
+- short chat summary with the main findings

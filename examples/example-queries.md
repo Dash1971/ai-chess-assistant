@@ -36,11 +36,12 @@ Download a chess.com player:
 
 ```bash
 python3 skills/chess-opponent-scout/scripts/analyze_player.py <username> tmp/<username> --platform chesscom
+python3 skills/chess-opponent-scout/scripts/build_pdf.py tmp/<username>/analysis.json tmp/<username>/<username>-scouting-report.pdf
 ```
 
 Typical prompt:
 
-> Build a scouting report for this opponent and summarize the biggest exploitable opening patterns.
+> Build a scouting report for this opponent, include the improvement trajectory by time control, and summarize the biggest exploitable opening patterns.
 
 ## Generic opening-guide pipeline
 

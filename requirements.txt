@@ -3,3 +3,4 @@
 
 python-chess
 weasyprint
+reportlab

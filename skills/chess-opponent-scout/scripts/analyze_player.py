@@ -25,6 +25,24 @@ ECO_FAMILIES = {
     'E20-E59': 'Nimzo-Indian', 'E60-E99': "King's Indian",
 }
 
+# Based on findings summarized in:
+# https://github.com/jcw024/lichess_database_ETL
+# Key anchors from the README:
+# - most 800-1000 players gain 100 lichess blitz points in roughly 3-6 months
+# - most 1600-2000 players take roughly 3-4 years to gain 100 points
+# - only about the top 10% achieve meaningful improvement (>100) over time
+# - only about ~1% break past 200+ points within a few years
+IMPROVEMENT_RESEARCH = {
+    'source': 'jcw024/lichess_database_ETL README',
+    'population': '2.3M lichess players, 450M games, 5.5 years',
+    'mode': 'monthly-average rating trajectories, primarily lichess blitz',
+    'anchors': [
+        {'rating': 900, 'typical_100_months': 4.5, 'top10_100_months': 1.5},
+        {'rating': 1800, 'typical_100_months': 42.0, 'top10_100_months': 36.0},
+    ],
+    'top1_threshold': {'gain_points': 200, 'within_months': 36},
+}
+
 def eco_to_family(eco):
     if not eco or eco in ('unknown', '?'): return 'Unknown'
     letter = eco[0]
@@ -36,6 +54,180 @@ def eco_to_family(eco):
         el, en = parts[1][0], int(parts[1][1:])
         if letter == sl and sn <= num <= en: return name
     return f'{letter}-other'
+
+
+def lerp(a, b, t):
+    return a + (b - a) * t
+
+
+def interpolate_months_for_100(start_rating, key):
+    anchors = IMPROVEMENT_RESEARCH['anchors']
+    low = anchors[0]
+    high = anchors[-1]
+    if start_rating <= low['rating']:
+        return low[key]
+    if start_rating >= high['rating']:
+        extra = (start_rating - high['rating']) / 200.0
+        if key == 'typical_100_months':
+            return min(72.0, high[key] + extra * 8.0)
+        return min(60.0, high[key] + extra * 6.0)
+    span = high['rating'] - low['rating']
+    t = (start_rating - low['rating']) / span
+    return lerp(low[key], high[key], t)
+
+
+def rating_band_label(rating):
+    bands = [
+        (0, 800, '<800'), (800, 1000, '800-999'), (1000, 1200, '1000-1199'),
+        (1200, 1400, '1200-1399'), (1400, 1600, '1400-1599'), (1600, 1800, '1600-1799'),
+        (1800, 2000, '1800-1999'), (2000, 2200, '2000-2199'), (2200, 2400, '2200-2399'),
+        (2400, 10_000, '2400+')
+    ]
+    for lo, hi, label in bands:
+        if lo <= rating < hi:
+            return label
+    return 'unknown'
+
+
+def month_index(month_str):
+    try:
+        year, month = month_str.split('-')[:2]
+        return int(year) * 12 + int(month)
+    except Exception:
+        return None
+
+
+def month_span(months):
+    if len(months) < 2:
+        return 0
+    idx = [month_index(m) for m in months]
+    idx = [i for i in idx if i is not None]
+    if len(idx) < 2:
+        return 0
+    return max(idx) - min(idx)
+
+
+def summarize_rating_series(monthly_map):
+    months = sorted(monthly_map.keys())
+    if not months:
+        return None
+    values = [monthly_map[m]['avg'] for m in months if 'avg' in monthly_map[m]]
+    if not values:
+        return None
+    usable_months = [m for m in months if 'avg' in monthly_map[m]]
+    values = [monthly_map[m]['avg'] for m in usable_months]
+    span = month_span(usable_months)
+    start = values[0]
+    latest = values[-1]
+    peak = max(values)
+    trough = min(values)
+    net_gain = latest - start
+    pace = net_gain / span if span > 0 else 0.0
+
+    rolling = min(3, len(values))
+    early_avg = sum(values[:rolling]) / rolling
+    late_avg = sum(values[-rolling:]) / rolling
+    recent_gain = late_avg - early_avg
+    recent_pace = recent_gain / span if span > 0 else 0.0
+
+    hit_100 = None
+    for m, v in zip(usable_months, values):
+        if v - start >= 100:
+            hit_100 = month_index(m) - month_index(usable_months[0])
+            break
+
+    return {
+        'months': usable_months,
+        'months_observed': len(usable_months),
+        'calendar_month_span': span,
+        'start_rating': start,
+        'latest_rating': latest,
+        'peak_rating': peak,
+        'trough_rating': trough,
+        'net_gain': net_gain,
+        'pace_per_month': round(pace, 2),
+        'recent_gain': round(recent_gain, 1),
+        'recent_pace_per_month': round(recent_pace, 2),
+        'months_to_plus_100': hit_100,
+    }
+
+
+def classify_improver(series_summary):
+    if not series_summary:
+        return None
+
+    start_rating = series_summary['start_rating']
+    months = max(series_summary['calendar_month_span'], 1)
+    net_gain = series_summary['net_gain']
+    pace = series_summary['pace_per_month']
+    typical_100 = interpolate_months_for_100(start_rating, 'typical_100_months')
+    top10_100 = interpolate_months_for_100(start_rating, 'top10_100_months')
+    typical_pace = 100.0 / typical_100
+    top10_pace = 100.0 / top10_100
+
+    tier = 'plateau / below-average improver'
+    percentile = 'bottom 50-90% of improvers / non-improvers'
+    rationale = 'The research suggests most players hover near their starting strength for long stretches.'
+
+    if net_gain >= IMPROVEMENT_RESEARCH['top1_threshold']['gain_points'] and months <= IMPROVEMENT_RESEARCH['top1_threshold']['within_months']:
+        tier = 'outlier improver'
+        percentile = 'roughly top 1%'
+        rationale = 'This matches the README\'s description of the rare group that gains 200+ points within a few years.'
+    elif net_gain >= 100 and pace >= top10_pace * 0.8:
+        tier = 'strong improver'
+        percentile = 'roughly top 10%'
+        rationale = 'The README says only about the top 10% achieve clearly meaningful long-run gains.'
+    elif net_gain > 0 and pace >= typical_pace * 0.8:
+        tier = 'above-average improver'
+        percentile = 'roughly top 25-40%'
+        rationale = 'This pace is at or better than the study\'s typical path for the same starting strength.'
+    elif net_gain > 0:
+        tier = 'modest / average improver'
+        percentile = 'roughly middle of the pack'
+        rationale = 'There is real improvement, but not at the pace associated with standout improvers.'
+
+    remaining = max(0, 100 - series_summary['latest_rating'] + start_rating)
+    projected_typical = None
+    if net_gain < 100:
+        projected_typical = round(typical_100 - months, 1)
+
+    projected_own = None
+    recent_pace = series_summary['recent_pace_per_month']
+    if recent_pace > 0.25:
+        projected_own = round(max(0.0, (100 - net_gain) / recent_pace), 1)
+
+    return {
+        'starting_band': rating_band_label(start_rating),
+        'tier': tier,
+        'estimated_percentile_band': percentile,
+        'rationale': rationale,
+        'typical_100_point_months': round(typical_100, 1),
+        'top10_100_point_months': round(top10_100, 1),
+        'projected_months_to_plus_100_at_study_typical_pace': projected_typical,
+        'projected_months_to_plus_100_at_recent_player_pace': projected_own,
+        'caveat': 'Percentile bands are approximate. The underlying research is lichess blitz and the script interpolates between published anchor points rather than raw percentile tables.',
+    }
+
+
+def build_improvement_entry(series_summary, platform, time_control=None):
+    if not series_summary:
+        return None
+    research_fit = 'direct' if platform == 'lichess' and time_control == 'blitz' else 'proxy'
+    entry = {
+        'research_source': IMPROVEMENT_RESEARCH['source'],
+        'research_fit': research_fit,
+        'research_population': IMPROVEMENT_RESEARCH['population'],
+        'research_mode': IMPROVEMENT_RESEARCH['mode'],
+        'analyzed_time_control': time_control,
+        'series': series_summary,
+        'classification': classify_improver(series_summary),
+    }
+    if research_fit == 'proxy':
+        entry['fit_note'] = (
+            'The benchmark research is built on lichess monthly-average blitz progress. '
+            'For chess.com or non-blitz samples, treat the percentile/projection labels as directional rather than exact.'
+        )
+    return entry
 
 
 # ── Downloads ────────────────────────────────────────────────────────────
@@ -288,11 +480,23 @@ def analyze(games, username, platform='chesscom'):
 
     # Elo by month
     em = defaultdict(list)
+    em_by_tc = defaultdict(lambda: defaultdict(list))
     for g in games:
         m, e = month(g), elo(g)
-        if m and e: em[m].append(e)
+        game_tc = tc(g)
+        if m and e:
+            em[m].append(e)
+            if platform != 'lichess' or is_rated(g):
+                em_by_tc[game_tc][m].append(e)
     s['elo_by_month'] = {m: {'avg': sum(v) // len(v), 'min': min(v), 'max': max(v), 'games': len(v)}
                          for m, v in sorted(em.items())}
+    s['elo_by_month_by_time_control'] = {
+        label: {
+            m: {'avg': sum(v) // len(v), 'min': min(v), 'max': max(v), 'games': len(v)}
+            for m, v in sorted(month_map.items())
+        }
+        for label, month_map in em_by_tc.items()
+    }
 
     # First moves (White)
     fm = Counter(g['moves'][0] for g in wg if g['moves'])
@@ -469,6 +673,41 @@ def analyze(games, username, platform='chesscom'):
             'games': total, 'win': r['win'], 'draw': r['draw'], 'loss': r['loss'],
             'score': (r['win'] + 0.5 * r['draw']) / total * 100 if total else 0
         }
+
+    # Improvement profile (grounded in lichess blitz public research; proxy when cross-platform)
+    series_candidates = []
+    for label, month_map in s['elo_by_month_by_time_control'].items():
+        summary = summarize_rating_series(month_map)
+        total_games = sum(v['games'] for v in month_map.values()) if month_map else 0
+        if summary:
+            series_candidates.append((label, total_games, summary))
+
+    overall_summary = summarize_rating_series(s['elo_by_month'])
+    by_time_control = {}
+    for label, _, summary in sorted(series_candidates, key=lambda item: item[0]):
+        if label in ['bullet', 'blitz', 'rapid', 'classical']:
+            by_time_control[label] = build_improvement_entry(summary, platform, label)
+
+    preferred_label = None
+    preferred_entry = None
+    if by_time_control:
+        preferred_order = ['blitz', 'rapid', 'classical', 'bullet']
+        for label in preferred_order:
+            if label in by_time_control:
+                preferred_label = label
+                preferred_entry = by_time_control[label]
+                break
+
+    s['improvement_profile'] = {
+        'research_source': IMPROVEMENT_RESEARCH['source'],
+        'research_population': IMPROVEMENT_RESEARCH['population'],
+        'research_mode': IMPROVEMENT_RESEARCH['mode'],
+        'overall_series': overall_summary,
+        'overall': build_improvement_entry(overall_summary, platform, 'overall') if overall_summary else None,
+        'by_time_control': by_time_control,
+        'preferred_time_control': preferred_label,
+        'preferred': preferred_entry,
+    }
 
     # Rating bands
     s['vs_rating_bands'] = {}

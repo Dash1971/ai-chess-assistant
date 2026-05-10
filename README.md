@@ -54,7 +54,7 @@ The current configured openings are `stonewall` and `french`, but the layout is 
 
 ### Skills
 - `openings-coach` — opening-oriented analysis and coaching workflows
-- `chess-opponent-scout` — generic username-driven opponent/account scouting
+- `chess-opponent-scout` — generic username-driven opponent/account scouting with JSON analysis + PDF dossier output
 - `chess-opening-study` — extract and shape opening-study material
 - `chess-concepts` — maintain concept documents around recurring opening themes
 - `chess-db-sync` — sync study-based source material into the local database layer
@@ -96,6 +96,15 @@ Keep these outside the repo, or in your own private companion data location:
 - real working corpora
 - source manifests you actively maintain
 - generated guides/PDFs and other operating outputs
+
+---
+
+## External research credit
+
+The opponent-scout improvement-trajectory layer in this repo is informed by public Lichess analysis from:
+- <https://github.com/jcw024/lichess_database_ETL>
+
+That project analyzed large-scale Lichess rating progress and helped anchor the scout's improver-tier / percentile framing. The implementation here is an approximation layer built on the published findings, not a verbatim reproduction of the original dataset or raw percentile tables.
 
 ---
 
