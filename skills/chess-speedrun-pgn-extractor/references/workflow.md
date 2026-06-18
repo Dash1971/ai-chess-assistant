@@ -60,10 +60,29 @@ Report:
 ## Output convention
 
 Default chunk size is 64 games per PGN file.
+Keep the games in **chronological order** unless the user explicitly asks for another ordering.
 
 Use filenames like:
 - `wonestall_part1.pgn`
 - `wonestall_part2.pgn`
+
+## Lichess study chapter-title behavior
+
+For study-import workflows, do not rely on the PGN `Event` tag alone to control the visible chapter title.
+
+Working rule from testing:
+- Lichess often builds imported chapter titles from `White` and `Black`
+- if the user wants a prefix like `Englund Gambit:` to appear **before** the player names, put that prefix into the `White` field for matching games
+- optionally mirror the same prefix into `Event`, but `White`/`Black` are the important levers
+
+Example:
+```pgn
+[White "Englund Gambit: TheQueensGambit"]
+[Black "chessgod69-2"]
+[Event "Englund Gambit: TheQueensGambit - chessgod69-2 (567)"]
+```
+
+When tagging opening-specific games for chapter titles, prefer actual opening metadata / move validation over guessing from filenames or manual memory.
 
 ## Scope guardrail
 

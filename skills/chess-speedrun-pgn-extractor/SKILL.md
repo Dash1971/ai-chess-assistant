@@ -48,6 +48,10 @@ python3 scripts/extract_speedrun_pgn.py extract <username> \
   --prefix <name>
 ```
 
+Default output should stay **chronological** and split into **64-game chunks** unless the user explicitly asks otherwise.
+
+**Header preservation rule:** keep the PGN body and headers untouched unless the user explicitly asks for header rewriting. If the user wants labels such as `KIA` / `KID`, put them in filenames or batch labels only — not in `White`, `Black`, `Event`, or other PGN tags.
+
 ## Report format
 
 Report back:
@@ -56,6 +60,25 @@ Report back:
 - chosen time control filter
 - number of retained games
 - output file paths
+- whether the output was filtered further (for example white-only)
+
+## Lichess study import title rule
+
+When the user wants PGNs specifically for **Lichess study import**, do not assume the `[Event "..."]` tag controls chapter titles.
+
+Observed behavior / working rule:
+- Lichess study import commonly derives visible chapter titles from **`White` / `Black`** names
+- changing `Event` alone may not affect the imported chapter title
+- if a prefix must appear **before the player names** in the chapter title, bake it into the `White` field (and optionally also into `Event` as a belt-and-suspenders fallback)
+
+Example for an Englund-tagged White game:
+```pgn
+[White "Englund Gambit: TheQueensGambit"]
+[Black "chessgod69-2"]
+[Event "Englund Gambit: TheQueensGambit - chessgod69-2 (567)"]
+```
+
+If the user asks for opening tags in chapter titles, detect them from the actual game/opening metadata and rewrite the PGN headers before delivery.
 
 ## Scope guardrails
 
